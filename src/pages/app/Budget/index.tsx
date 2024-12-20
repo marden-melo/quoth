@@ -3,7 +3,6 @@ import { useForm, Controller } from 'react-hook-form';
 import {
   Container,
   Content,
-  Header,
   Title,
   Form,
   SectionTitle,
@@ -16,6 +15,7 @@ import { Input } from '@/components/Input';
 import { Button } from '@/components/Button';
 import { Select } from '@/components/Select';
 import { TextArea } from '@/components/TextArea';
+import { useTheme } from 'styled-components';
 
 interface BudgetFormData {
   cliente: string;
@@ -39,6 +39,8 @@ interface BudgetFormData {
 export function Budget() {
   const { handleSubmit, control, reset } = useForm<BudgetFormData>();
 
+  const theme = useTheme();
+
   const onSubmit = (data: BudgetFormData) => {
     console.log('Form Submitted:', data);
     // Lógica para salvar o orçamento
@@ -46,7 +48,7 @@ export function Budget() {
   };
 
   const handleCancel = () => {
-    reset(); // Limpar campos ao clicar em Cancelar
+    reset();
   };
 
   return (
@@ -221,7 +223,9 @@ export function Budget() {
           />
 
           <FormRowBottom>
-            <Button type="submit">Salvar Orçamento</Button>
+            <Button type="submit" backgroundColor={theme['green-500']}>
+              Salvar Orçamento
+            </Button>
             <Button type="button" onClick={handleCancel} cancel>
               Cancelar
             </Button>

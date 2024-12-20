@@ -9,13 +9,14 @@ import {
   SectionTitle,
   FormRow,
   FormRowBottom,
-  FormRowHalf,
   FormRowCustom,
   FormRowCustomFields,
+  FormRowHalf,
 } from './styles';
 import { Input } from '@/components/Input';
 import { Button } from '@/components/Button';
 import { fetchAddressByCEP } from '@/utils/findCEP';
+import { useTheme } from 'styled-components';
 
 interface ClientFormInputs {
   cnpj?: string;
@@ -30,9 +31,11 @@ interface ClientFormInputs {
   number?: string;
   state?: string;
   cep?: string;
+  responsable?: string;
 }
 
 export function Clients() {
+  const theme = useTheme();
   const [clientType, setClientType] = useState<'company' | 'individual'>(
     'company'
   );
@@ -47,6 +50,10 @@ export function Clients() {
 
   const onSubmit = (data: ClientFormInputs) => {
     console.log(data);
+    reset();
+  };
+
+  const handleCancel = () => {
     reset();
   };
 
@@ -206,14 +213,14 @@ export function Clients() {
           ) : (
             <>
               <SectionTitle>Dados Pessoais</SectionTitle>
-              <FormRow>
+              <FormRowHalf>
                 <Controller
                   name="cpf"
                   control={control}
                   render={({ field }) => (
                     <Input
                       {...field}
-                      placeholder="Digite o CPF"
+                      placeholder="CPF"
                       error={errors.cpf?.message}
                     />
                   )}
@@ -224,17 +231,106 @@ export function Clients() {
                   render={({ field }) => (
                     <Input
                       {...field}
-                      placeholder="Digite o Nome Completo"
+                      placeholder="Nome Completo"
                       error={errors.fullName?.message}
                     />
                   )}
                 />
-              </FormRow>
+              </FormRowHalf>
             </>
           )}
 
+          <FormRowCustomFields>
+            <Controller
+              name="cep"
+              control={control}
+              render={({ field }) => (
+                <Input
+                  {...field}
+                  placeholder="CEP"
+                  error={errors.cep?.message}
+                  onChange={(e: any) => {
+                    field.onChange(e);
+                    handleCepChange(e.target.value);
+                  }}
+                />
+              )}
+            />
+            <Controller
+              name="street"
+              control={control}
+              render={({ field }) => (
+                <Input
+                  {...field}
+                  placeholder="Rua, Avenida, etc."
+                  error={errors.street?.message}
+                  disabled={!isAddressEditable}
+                />
+              )}
+            />
+            <Controller
+              name="district"
+              control={control}
+              render={({ field }) => (
+                <Input
+                  {...field}
+                  placeholder="Bairro"
+                  error={errors.district?.message}
+                  disabled={!isAddressEditable}
+                />
+              )}
+            />
+            <Controller
+              name="number"
+              control={control}
+              render={({ field }) => (
+                <Input
+                  {...field}
+                  placeholder="Número"
+                  error={errors.number?.message}
+                  disabled={!isAddressEditable}
+                />
+              )}
+            />
+            <Controller
+              name="city"
+              control={control}
+              render={({ field }) => (
+                <Input
+                  {...field}
+                  placeholder="Cidade"
+                  error={errors.city?.message}
+                  disabled={!isAddressEditable}
+                />
+              )}
+            />
+            <Controller
+              name="state"
+              control={control}
+              render={({ field }) => (
+                <Input
+                  {...field}
+                  placeholder="Estado"
+                  error={errors.state?.message}
+                  disabled={!isAddressEditable}
+                />
+              )}
+            />
+          </FormRowCustomFields>
+
           <SectionTitle>Contato</SectionTitle>
-          <FormRowHalf>
+          <FormRowCustomFields>
+            <Controller
+              name="responsable"
+              control={control}
+              render={({ field }) => (
+                <Input
+                  {...field}
+                  placeholder="Nome do Responsável"
+                  error={errors.phone?.message}
+                />
+              )}
+            />
             <Controller
               name="phone"
               control={control}
@@ -257,10 +353,15 @@ export function Clients() {
                 />
               )}
             />
-          </FormRowHalf>
+          </FormRowCustomFields>
 
           <FormRowBottom>
-            <Button type="submit">Cadastrar</Button>
+            <Button type="submit" backgroundColor={theme['green-500']}>
+              Salvar cliente
+            </Button>
+            <Button type="button" onClick={handleCancel} cancel>
+              Cancelar
+            </Button>
           </FormRowBottom>
         </Form>
       </Content>

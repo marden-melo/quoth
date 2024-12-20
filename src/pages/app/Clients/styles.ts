@@ -46,8 +46,13 @@ export const FormRow = styled.div`
 `;
 
 export const FormRowHalf = styled(FormRow)`
-  gap: 10px;
-  justify-content: space-between;
+  display: grid;
+  grid-template-columns: 1fr 3fr;
+  gap: 16px;
+
+  @media (max-width: 768px) {
+    grid-template-columns: 1fr;
+  }
 `;
 
 export const FormRowCustom = styled.div`
@@ -71,9 +76,10 @@ export const FormRowCustomFields = styled.div`
 `;
 
 export const FormRowBottom = styled.div`
-  margin-top: 20px;
   display: flex;
   justify-content: flex-end;
+  gap: 6px;
+  margin-top: 2rem;
 `;
 
 export const Button = styled.button<{ active?: boolean }>`

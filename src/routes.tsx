@@ -7,6 +7,7 @@ import { Configurations } from './pages/app/Configurations';
 import { ProductsAndServices } from './pages/app/ProductsAndServices';
 import { ListBudget } from './pages/app/ListBudget';
 import { Clients } from './pages/app/Clients';
+import { Apresentation } from './pages/auth/Apresentation';
 
 const ProtectedRoute = ({ element, isAuthenticated }: any) => {
   if (!isAuthenticated) {
@@ -21,10 +22,9 @@ export const RoutesComponent = () => {
   return (
     <Router>
       <Routes>
-        {/* Rotas públicas (antes da autenticação) */}
+        <Route path="/apresentation" element={<Apresentation />} />
         <Route path="/login" element={<SignIn />} />
 
-        {/* Rotas privadas (após a autenticação) */}
         <Route
           path="/"
           element={

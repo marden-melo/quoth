@@ -77,7 +77,7 @@ export const FormRowCustom = styled.div`
 export const FormRowBottom = styled.div`
   display: flex;
   justify-content: flex-end;
-  gap: 16px;
+  gap: 6px;
 `;
 
 export const StyledInput = styled.input`
