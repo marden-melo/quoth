@@ -1,4 +1,4 @@
-import { Link } from 'react-router';
+import { NavLink } from 'react-router'; // Corrigido para NavLink
 import styled from 'styled-components';
 
 export const Container = styled.div`
@@ -30,10 +30,14 @@ export const ButtonContainer = styled.div`
   overflow: hidden;
 `;
 
-export const StyledLink = styled(Link)`
+export const StyledLink = styled(NavLink)`
   text-decoration: none;
   font-family: ${({ theme }) => theme.fontFamily};
   color: ${({ theme }) => theme.text};
+
+  &.active {
+    color: ${({ theme }) => theme['blue-500']}; /* Cor azul quando ativo */
+  }
 
   &:hover {
     color: ${({ theme }) => theme.primary};

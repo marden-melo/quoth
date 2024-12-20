@@ -6,6 +6,7 @@ import { Dashboard } from './pages/app/Dashboard';
 import { Configurations } from './pages/app/Configurations';
 import { ProductsAndServices } from './pages/app/ProductsAndServices';
 import { ListBudget } from './pages/app/ListBudget';
+import { Clients } from './pages/app/Clients';
 
 const ProtectedRoute = ({ element, isAuthenticated }: any) => {
   if (!isAuthenticated) {
@@ -56,6 +57,15 @@ export const RoutesComponent = () => {
           element={
             <ProtectedRoute
               element={<ProductsAndServices />}
+              isAuthenticated={isAuthenticated}
+            />
+          }
+        />
+        <Route
+          path="/clients"
+          element={
+            <ProtectedRoute
+              element={<Clients />}
               isAuthenticated={isAuthenticated}
             />
           }

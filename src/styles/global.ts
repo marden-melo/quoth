@@ -35,4 +35,18 @@ export const GlobalStyle = createGlobalStyle`
     align-items: stretch;
     justify-content: flex-start;
   }
+
+    ::-webkit-scrollbar {
+    width: 8px; 
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background-color: ${({ theme }) => theme['gray-400']};  
+    border-radius: 10px;  
+  }
+
+  ::-webkit-scrollbar-track {
+    background-color: ${({ theme }) => theme['gray-200']};  
+    border-radius: 10px;
+  }
 `;

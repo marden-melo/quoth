@@ -15,6 +15,7 @@ import {
   CirclesFour,
   House,
   SignOut,
+  Buildings,
 } from 'phosphor-react';
 
 export function Sidebar() {
@@ -24,7 +25,7 @@ export function Sidebar() {
         <img src={Logo} alt="Logo" width={100} height={50} />
       </LogoContainer>
       <ButtonContainer>
-        <StyledLink to="/">
+        <StyledLink to="/" end>
           <IconButton
             text="Página inicial"
             icon={<House size={24} />}
@@ -39,7 +40,6 @@ export function Sidebar() {
           />
         </StyledLink>
         <StyledLink to="/listbudget">
-          {' '}
           <IconButton
             text="Lista de orçamentos"
             icon={<FileText size={24} />}
@@ -47,15 +47,20 @@ export function Sidebar() {
           />
         </StyledLink>
         <StyledLink to="/productsservices">
-          {' '}
           <IconButton
             text="Produtos e Serviços"
             icon={<CirclesFour size={24} />}
             onClick={() => {}}
           />
         </StyledLink>
+        <StyledLink to="/clients">
+          <IconButton
+            text="Cadastrar clientes"
+            icon={<Buildings size={24} />}
+            onClick={() => {}}
+          />
+        </StyledLink>
         <StyledLink to="/dashboard">
-          {' '}
           <IconButton
             text="Dashboard"
             icon={<ChartLineUp size={24} />}
@@ -63,7 +68,6 @@ export function Sidebar() {
           />
         </StyledLink>
         <StyledLink to="/configurations">
-          {' '}
           <IconButton
             text="Configurações"
             icon={<Gear size={24} />}
@@ -71,13 +75,11 @@ export function Sidebar() {
           />
         </StyledLink>
       </ButtonContainer>
-      {/* Colocando o botão de "Sair" no final */}
       <ButtonContainerExit>
         <IconButton
           text="Sair"
           icon={<SignOut size={24} />}
           onClick={() => {
-            // Aqui você pode adicionar a lógica para logout
             console.log('Saindo...');
           }}
         />
