@@ -39,6 +39,7 @@ export const defaultTheme = {
   'teal-800': '#065f46',
   'teal-900': '#134e4a',
 
+  'green-200': '#bbf7d0',
   'green-300': '#00B37E',
   'green-500': '#00875F',
   'green-700': '#015F43',

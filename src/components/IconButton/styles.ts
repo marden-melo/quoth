@@ -9,25 +9,23 @@ export const Container = styled.div`
   box-sizing: border-box;
 `;
 
-export const Button = styled.button<{ backgroundColor?: string }>`
+export const Button = styled.button`
   display: flex;
   align-items: center;
   justify-content: flex-start;
-  padding: 12px 25px;
-  font-size: 1rem;
-  font-weight: 600;
-  background-color: ${({ backgroundColor }) =>
-    backgroundColor || 'transparent'};
-  border: ${({ backgroundColor }) => (backgroundColor ? 'none' : '2px solid')};
-  border-radius: 10px;
+  background-color: ${({ theme }) => theme.white};
+  border: none;
+  padding: 12px 16px;
+  border-radius: 8px;
   cursor: pointer;
+  width: 100%;
   transition:
     background-color 0.3s,
     transform 0.2s;
 
   &:hover {
-    opacity: 0.85;
-    transform: translateY(-2px);
+    background-color: ${({ theme }) => theme['gray-200']};
+    transform: scale(1.05);
   }
 
   span:first-child {

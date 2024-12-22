@@ -33,12 +33,6 @@ export const FiltersContainer = styled.div`
   margin-left: auto;
 `;
 
-export const FilterButton = styled.button`
-  display: flex;
-  align-items: center;
-  gap: 8px;
-`;
-
 export const CardContainer = styled.div`
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -69,12 +63,23 @@ export const CardHeader = styled.div`
     font-weight: 600;
     color: ${({ theme }) => theme['gray-900']};
   }
+`;
 
-  p {
-    font-size: 14px;
-    font-weight: 500;
-    color: ${({ theme }) => theme['blue-500']};
-  }
+export const Status = styled.p<{ status: string }>`
+  font-size: 14px;
+  font-weight: 500;
+  color: ${({ status, theme }) => {
+    switch (status) {
+      case 'Aprovado':
+        return theme['green-500'];
+      case 'Reprovado':
+        return theme['red-500'];
+      case 'Pendente':
+        return theme['yellow-500'];
+      default:
+        return theme['gray-700'];
+    }
+  }};
 `;
 
 export const CardDetails = styled.div`
@@ -95,4 +100,10 @@ export const CardFooter = styled.div`
   font-weight: 500;
   color: ${({ theme }) => theme['gray-600']};
   margin-top: auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  position: relative;
 `;
+
+export const IconButtonWrapper = styled.div``;

@@ -8,6 +8,7 @@ import { ProductsAndServices } from './pages/app/ProductsAndServices';
 import { ListBudget } from './pages/app/ListBudget';
 import { Clients } from './pages/app/Clients';
 import { Apresentation } from './pages/auth/Apresentation';
+import { NewProductService } from './pages/app/ProductsAndServices/NewProductService';
 
 const ProtectedRoute = ({ element, isAuthenticated }: any) => {
   if (!isAuthenticated) {
@@ -57,6 +58,15 @@ export const RoutesComponent = () => {
           element={
             <ProtectedRoute
               element={<ProductsAndServices />}
+              isAuthenticated={isAuthenticated}
+            />
+          }
+        />
+        <Route
+          path="/add-product-service"
+          element={
+            <ProtectedRoute
+              element={<NewProductService />}
               isAuthenticated={isAuthenticated}
             />
           }

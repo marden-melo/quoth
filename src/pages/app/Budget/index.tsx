@@ -55,7 +55,7 @@ export function Budget() {
     <Container>
       <Sidebar />
       <Content>
-        <Title>Cadastrar Orçamento</Title>
+        <Title>Criar Orçamento</Title>
         <Form onSubmit={handleSubmit(onSubmit)}>
           <SectionTitle>Dados do Cliente</SectionTitle>
           <FormRow>
@@ -223,7 +223,7 @@ export function Budget() {
           />
 
           <FormRowBottom>
-            <Button type="submit" backgroundColor={theme['green-500']}>
+            <Button type="submit" backgroundColor={theme['green-300']}>
               Salvar Orçamento
             </Button>
             <Button type="button" onClick={handleCancel} cancel>

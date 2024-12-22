@@ -46,6 +46,7 @@ export function Clients() {
     formState: { errors },
     reset,
     setValue,
+    getValues,
   } = useForm<ClientFormInputs>();
 
   const onSubmit = (data: ClientFormInputs) => {
@@ -58,12 +59,21 @@ export function Clients() {
   };
 
   const handleClientTypeChange = (type: 'company' | 'individual') => {
+    // Reset address fields when changing client type
+    reset({
+      ...getValues(), // Substitua formState.values por getValues()
+      street: '',
+      district: '',
+      city: '',
+      state: '',
+      number: '',
+      cep: '',
+    });
     setClientType(type);
   };
 
   const handleCepChange = async (cep: string) => {
     if (cep.length === 8) {
-      // Reseta os campos para evitar bloqueios ao buscar novo CEP
       setValue('street', '');
       setValue('district', '');
       setValue('city', '');
@@ -237,86 +247,85 @@ export function Clients() {
                   )}
                 />
               </FormRowHalf>
+              <FormRowCustomFields>
+                <Controller
+                  name="cep"
+                  control={control}
+                  render={({ field }) => (
+                    <Input
+                      {...field}
+                      placeholder="CEP"
+                      error={errors.cep?.message}
+                      onChange={(e: any) => {
+                        field.onChange(e);
+                        handleCepChange(e.target.value);
+                      }}
+                    />
+                  )}
+                />
+                <Controller
+                  name="street"
+                  control={control}
+                  render={({ field }) => (
+                    <Input
+                      {...field}
+                      placeholder="Rua, Avenida, etc."
+                      error={errors.street?.message}
+                      disabled={!isAddressEditable}
+                    />
+                  )}
+                />
+                <Controller
+                  name="district"
+                  control={control}
+                  render={({ field }) => (
+                    <Input
+                      {...field}
+                      placeholder="Bairro"
+                      error={errors.district?.message}
+                      disabled={!isAddressEditable}
+                    />
+                  )}
+                />
+                <Controller
+                  name="number"
+                  control={control}
+                  render={({ field }) => (
+                    <Input
+                      {...field}
+                      placeholder="Número"
+                      error={errors.number?.message}
+                      disabled={!isAddressEditable}
+                    />
+                  )}
+                />
+                <Controller
+                  name="city"
+                  control={control}
+                  render={({ field }) => (
+                    <Input
+                      {...field}
+                      placeholder="Cidade"
+                      error={errors.city?.message}
+                      disabled={!isAddressEditable}
+                    />
+                  )}
+                />
+                <Controller
+                  name="state"
+                  control={control}
+                  render={({ field }) => (
+                    <Input
+                      {...field}
+                      placeholder="Estado"
+                      error={errors.state?.message}
+                      disabled={!isAddressEditable}
+                    />
+                  )}
+                />
+              </FormRowCustomFields>
             </>
           )}
-
-          <FormRowCustomFields>
-            <Controller
-              name="cep"
-              control={control}
-              render={({ field }) => (
-                <Input
-                  {...field}
-                  placeholder="CEP"
-                  error={errors.cep?.message}
-                  onChange={(e: any) => {
-                    field.onChange(e);
-                    handleCepChange(e.target.value);
-                  }}
-                />
-              )}
-            />
-            <Controller
-              name="street"
-              control={control}
-              render={({ field }) => (
-                <Input
-                  {...field}
-                  placeholder="Rua, Avenida, etc."
-                  error={errors.street?.message}
-                  disabled={!isAddressEditable}
-                />
-              )}
-            />
-            <Controller
-              name="district"
-              control={control}
-              render={({ field }) => (
-                <Input
-                  {...field}
-                  placeholder="Bairro"
-                  error={errors.district?.message}
-                  disabled={!isAddressEditable}
-                />
-              )}
-            />
-            <Controller
-              name="number"
-              control={control}
-              render={({ field }) => (
-                <Input
-                  {...field}
-                  placeholder="Número"
-                  error={errors.number?.message}
-                  disabled={!isAddressEditable}
-                />
-              )}
-            />
-            <Controller
-              name="city"
-              control={control}
-              render={({ field }) => (
-                <Input
-                  {...field}
-                  placeholder="Cidade"
-                  error={errors.city?.message}
-                  disabled={!isAddressEditable}
-                />
-              )}
-            />
-            <Controller
-              name="state"
-              control={control}
-              render={({ field }) => (
-                <Input
-                  {...field}
-                  placeholder="Estado"
-                  error={errors.state?.message}
-                  disabled={!isAddressEditable}
-                />
-              )}
-            />
-          </FormRowCustomFields>
 
           <SectionTitle>Contato</SectionTitle>
           <FormRowCustomFields>
@@ -327,7 +336,7 @@ export function Clients() {
                 <Input
                   {...field}
                   placeholder="Nome do Responsável"
-                  error={errors.phone?.message}
+                  error={errors.responsable?.message}
                 />
               )}
             />

@@ -36,7 +36,7 @@ export const StyledLink = styled(NavLink)`
   color: ${({ theme }) => theme.text};
 
   &.active {
-    color: ${({ theme }) => theme['blue-500']}; /* Cor azul quando ativo */
+    color: ${({ theme }) => theme['blue-500']};
   }
 
   &:hover {
