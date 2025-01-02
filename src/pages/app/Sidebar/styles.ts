@@ -1,4 +1,4 @@
-import { NavLink } from 'react-router'; // Corrigido para NavLink
+import { NavLink } from 'react-router';
 import styled from 'styled-components';
 
 export const Container = styled.div`
@@ -34,13 +34,20 @@ export const StyledLink = styled(NavLink)`
   text-decoration: none;
   font-family: ${({ theme }) => theme.fontFamily};
   color: ${({ theme }) => theme.text};
+  display: flex;
+  align-items: center;
+  padding: 3px;
+  border-radius: 8px;
+  transition: background-color 0.3s;
 
   &.active {
     color: ${({ theme }) => theme['blue-500']};
+    background-color: ${({ theme }) => theme['blue-100']};
   }
 
   &:hover {
     color: ${({ theme }) => theme.primary};
+    background-color: ${({ theme }) => theme['gray-200']};
   }
 `;
 

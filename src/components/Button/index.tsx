@@ -5,6 +5,7 @@ interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   children: ReactNode;
   cancel?: boolean;
   backgroundColor?: string;
+  active?: boolean;
 }
 
 export const Button = ({

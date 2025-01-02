@@ -53,9 +53,9 @@ export function Sidebar() {
             onClick={() => {}}
           />
         </StyledLink>
-        <StyledLink to="/clients">
+        <StyledLink to="/see-clients">
           <IconButton
-            text="Cadastrar clientes"
+            text="Clientes"
             icon={<Buildings size={24} />}
             onClick={() => {}}
           />

@@ -12,7 +12,7 @@ export const Container = styled.div`
 export const Button = styled.button`
   display: flex;
   align-items: center;
-  justify-content: flex-start;
+  justify-content: flex-start; /* Centraliza horizontalmente o conteúdo */
   background-color: ${({ theme }) => theme.white};
   border: none;
   padding: 12px 16px;
@@ -30,10 +30,12 @@ export const Button = styled.button`
 
   span:first-child {
     margin-right: 10px;
+    vertical-align: middle;
   }
 
   span {
     font-size: 16px;
     color: ${({ theme }) => theme['gray-700']};
+    vertical-align: middle;
   }
 `;

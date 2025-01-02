@@ -1,4 +1,5 @@
 import { useTheme } from 'styled-components';
+import { useNavigate } from 'react-router';
 import logo from '@/assets/logo_quoth300.png';
 import backgroundImage from '@/assets/dashboard.png';
 import {
@@ -9,23 +10,26 @@ import {
   Footer,
   Header,
   WhatsAppButton,
+  ButtonGroup,
+  IconContainer,
 } from './styles';
 import { IconButton } from '@/components/IconButton';
 import { User, Lock, List, WhatsappLogo } from 'phosphor-react';
 
 export function Apresentation() {
   const theme = useTheme();
+  const navigate = useNavigate();
 
   const handleLogin = () => {
-    // Lógica para Login
+    navigate('/login');
   };
 
   const handleCreateAccount = () => {
-    // Lógica para Criar Conta
+    navigate('/create-account');
   };
 
   const handlePlans = () => {
-    // Lógica para Planos
+    navigate('/plans');
   };
 
   const handleWhatsAppClick = () => {
@@ -41,7 +45,7 @@ export function Apresentation() {
       />
       <Header>
         <img src={logo} alt="Logo da Aplicação" />
-        <div>
+        <ButtonGroup>
           <IconButton
             icon={<List size={20} />}
             text="Planos"
@@ -71,7 +75,7 @@ export function Apresentation() {
               color: theme['gray-300'],
             }}
           />
-        </div>
+        </ButtonGroup>
       </Header>
       <Content>
         <Description>

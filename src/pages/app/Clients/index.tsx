@@ -17,12 +17,15 @@ import { Input } from '@/components/Input';
 import { Button } from '@/components/Button';
 import { fetchAddressByCEP } from '@/utils/findCEP';
 import { useTheme } from 'styled-components';
+import { api } from '@/lib/axios';
+import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import { useNavigate } from 'react-router';
 
 interface ClientFormInputs {
   cnpj?: string;
-  companyName?: string;
-  cpf?: string;
   fullName?: string;
+  cpf?: string;
   phone: string;
   email: string;
   street?: string;
@@ -32,14 +35,17 @@ interface ClientFormInputs {
   state?: string;
   cep?: string;
   responsable?: string;
+  companyName?: string;
 }
 
 export function Clients() {
   const theme = useTheme();
-  const [clientType, setClientType] = useState<'company' | 'individual'>(
-    'company'
+  const [clientType, setClientType] = useState<'COMPANY' | 'INDIVIDUAL'>(
+    'COMPANY'
   );
   const [isAddressEditable, setIsAddressEditable] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
   const {
     control,
     handleSubmit,
@@ -49,19 +55,82 @@ export function Clients() {
     getValues,
   } = useForm<ClientFormInputs>();
 
-  const onSubmit = (data: ClientFormInputs) => {
-    console.log(data);
-    reset();
+  const createClient = async (
+    clientData: ClientFormInputs
+  ): Promise<boolean> => {
+    setLoading(true);
+    try {
+      await api.post('/client', clientData);
+      toast.success('Cliente criado com sucesso!', { position: 'top-right' });
+      return true;
+    } catch (error: any) {
+      toast.error('Erro ao cadastrar cliente.', {
+        position: 'top-right',
+      });
+      return false;
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const onSubmit = async (data: ClientFormInputs) => {
+    const clientData = {
+      ...data,
+      clientType, // Isso já está sendo passado corretamente
+    };
+
+    if (clientType === 'COMPANY') {
+      if (!clientData.cnpj || !clientData.fullName) {
+        toast.error('CNPJ e Nome da Empresa são obrigatórios para empresas.', {
+          position: 'top-right',
+        });
+        return;
+      }
+    }
+
+    const creationSuccess = await createClient(clientData);
+
+    if (creationSuccess) {
+      reset({
+        cnpj: '',
+        companyName: '',
+        cpf: '',
+        fullName: '',
+        phone: '',
+        email: '',
+        street: '',
+        district: '',
+        city: '',
+        number: '',
+        state: '',
+        cep: '',
+        responsable: '',
+      });
+    }
   };
 
   const handleCancel = () => {
-    reset();
+    reset({
+      cnpj: '',
+      companyName: '',
+      cpf: '',
+      fullName: '',
+      phone: '',
+      email: '',
+      street: '',
+      district: '',
+      city: '',
+      number: '',
+      state: '',
+      cep: '',
+      responsable: '',
+    });
+    setClientType('COMPANY');
   };
 
-  const handleClientTypeChange = (type: 'company' | 'individual') => {
-    // Reset address fields when changing client type
+  const handleClientTypeChange = (type: 'COMPANY' | 'INDIVIDUAL') => {
     reset({
-      ...getValues(), // Substitua formState.values por getValues()
+      ...getValues(),
       street: '',
       district: '',
       city: '',
@@ -95,27 +164,30 @@ export function Clients() {
     <Container>
       <Sidebar />
       <Content>
+        <ToastContainer />
         <Title>Cadastrar Cliente</Title>
         <Form onSubmit={handleSubmit(onSubmit)}>
           <SectionTitle>Tipo de Cliente</SectionTitle>
           <FormRow>
             <Button
               type="button"
-              active={clientType === 'company'}
-              onClick={() => handleClientTypeChange('company')}
+              active={clientType === 'COMPANY'}
+              backgroundColor={theme['cyan-500']}
+              onClick={() => handleClientTypeChange('COMPANY')}
             >
               Empresa
             </Button>
             <Button
               type="button"
-              active={clientType === 'individual'}
-              onClick={() => handleClientTypeChange('individual')}
+              active={clientType === 'INDIVIDUAL'}
+              backgroundColor={theme['cyan-500']}
+              onClick={() => handleClientTypeChange('INDIVIDUAL')}
             >
               Pessoa Física
             </Button>
           </FormRow>
 
-          {clientType === 'company' ? (
+          {clientType === 'COMPANY' ? (
             <>
               <SectionTitle>Dados da Empresa</SectionTitle>
               <FormRowCustom>
@@ -131,13 +203,13 @@ export function Clients() {
                   )}
                 />
                 <Controller
-                  name="companyName"
+                  name="fullName"
                   control={control}
                   render={({ field }) => (
                     <Input
                       {...field}
                       placeholder="Nome da Empresa"
-                      error={errors.companyName?.message}
+                      error={errors.fullName?.message}
                     />
                   )}
                 />
@@ -357,7 +429,7 @@ export function Clients() {
               render={({ field }) => (
                 <Input
                   {...field}
-                  placeholder="Digite o Email"
+                  placeholder="Digite o E-mail"
                   error={errors.email?.message}
                 />
               )}
@@ -365,10 +437,18 @@ export function Clients() {
           </FormRowCustomFields>
 
           <FormRowBottom>
-            <Button type="submit" backgroundColor={theme['green-500']}>
-              Salvar cliente
+            <Button
+              type="submit"
+              backgroundColor={theme['green-300']}
+              disabled={loading}
+            >
+              {loading ? 'Cadastrando' : 'Cadastrar'}
             </Button>
-            <Button type="button" onClick={handleCancel} cancel>
+            <Button
+              type="button"
+              backgroundColor={theme['red-300']}
+              onClick={handleCancel}
+            >
               Cancelar
             </Button>
           </FormRowBottom>

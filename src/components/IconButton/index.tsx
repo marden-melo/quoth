@@ -10,7 +10,9 @@ interface IconButtonProps {
 export function IconButton({ icon, text, onClick, style }: IconButtonProps) {
   return (
     <Button onClick={onClick} style={style}>
-      <span>{icon}</span>
+      <div style={{ marginTop: 3 }}>
+        <span>{icon}</span>
+      </div>
       <span>{text}</span>
     </Button>
   );

@@ -1,5 +1,6 @@
 import { useTheme } from 'styled-components';
 import { Sidebar } from '../Sidebar';
+import Avatar from 'react-avatar';
 import {
   Container,
   Content,
@@ -9,9 +10,30 @@ import {
   ShortcutContainer,
   ShortcutButton,
   ChartContainer,
+  UserInfoContainer,
+  UserName,
+  UserEmail,
+  AvatarWrapper,
 } from './styles';
 import { useNavigate } from 'react-router';
 import { Chart } from 'react-google-charts';
+import { useEffect, useState } from 'react';
+import { api } from '@/lib/axios';
+
+interface User {
+  email: string;
+  id: string;
+  isActive: boolean;
+  name: string;
+  planId: string | null;
+  roleId: string;
+  testStartDate: string | null;
+  avatar: string | null;
+}
+
+interface UserData {
+  user: User;
+}
 
 const mockData = [
   ['Status', 'Quantidade'],
@@ -23,11 +45,44 @@ const mockData = [
 export function Home() {
   const theme = useTheme();
   const navigate = useNavigate();
+  const [userData, setUserData] = useState<UserData | null>(null);
+
+  useEffect(() => {
+    const fetchUserData = async () => {
+      try {
+        const response = await api.get('/me');
+        const data: UserData = response.data;
+        console.log('Usuário:', data);
+        setUserData(data);
+      } catch (error) {
+        console.error('Erro ao buscar os dados do usuário', error);
+      }
+    };
+
+    fetchUserData();
+  }, []);
 
   return (
     <Container>
       <Sidebar />
       <Content>
+        {userData && (
+          <UserInfoContainer>
+            <AvatarWrapper>
+              <Avatar
+                name={userData.user.name}
+                size="40"
+                round={true}
+                src={userData.user.avatar || undefined}
+              />
+            </AvatarWrapper>
+            <div>
+              <UserName>{userData.user.name}</UserName>
+              <UserEmail>{userData.user.email}</UserEmail>
+            </div>
+          </UserInfoContainer>
+        )}
+
         <WelcomeMessage>
           Gerencie seus orçamentos, clientes, produtos e serviços de forma
           simples e eficiente.

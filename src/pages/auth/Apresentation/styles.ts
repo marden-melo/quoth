@@ -2,9 +2,9 @@ import styled from 'styled-components';
 
 export const WhatsAppButton = styled.button`
   position: fixed;
-  bottom: 20px; /* Ajuste a distância da parte inferior */
-  right: 20px; /* Ajuste a distância da parte direita */
-  background-color: #25d366; /* Cor do botão do WhatsApp */
+  bottom: 20px;
+  right: 20px;
+  background-color: #25d366;
   border: none;
   border-radius: 50%;
   padding: 15px;
@@ -16,11 +16,11 @@ export const WhatsAppButton = styled.button`
   transition: transform 0.3s ease;
 
   &:hover {
-    transform: scale(1.1); /* Efeito de hover */
+    transform: scale(1.1);
   }
 
   svg {
-    color: ${({ theme }) => theme.white}; /* Cor do ícone */
+    color: ${({ theme }) => theme.white};
   }
 `;
 
@@ -47,26 +47,26 @@ export const Header = styled.header`
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 20px 40px; /* Ajustado para espaçamento confortável */
+  padding: 20px 40px;
   background-color: rgba(255, 255, 255, 0.8);
   color: ${({ theme }) => theme['gray-800']};
   border-bottom: 1px solid ${({ theme }) => theme['gray-300']};
 
   > div {
     display: flex;
-    gap: 25px; /* Aumentado para melhorar o espaçamento entre os botões */
+    gap: 25px;
   }
 
   img {
-    max-height: 80px; /* Ajustado para uma dimensão mais equilibrada */
+    max-height: 80px;
     width: auto;
     object-fit: contain;
   }
 `;
 
 export const Button = styled.button<{ backgroundColor: string }>`
-  padding: 12px 30px; /* Ajustado para proporcionar um clique mais confortável */
-  font-size: 1.1rem; /* Aumentado para melhorar a legibilidade */
+  padding: 12px 30px;
+  font-size: 1.1rem;
   font-weight: 600;
   color: ${({ theme }) => theme.white};
   background-color: ${({ backgroundColor }) => backgroundColor};
@@ -89,29 +89,29 @@ export const Content = styled.main`
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 40px 30px; /* Ajustado para maior conforto visual */
+  padding: 40px 30px;
   background-color: rgba(255, 255, 255, 0.9);
   backdrop-filter: blur(5px);
   border-radius: 20px;
   text-align: center;
   max-width: 800px;
-  margin: 30px auto; /* Melhorado para um espaçamento mais equilibrado */
+  margin: 30px auto;
 `;
 
 export const Description = styled.div`
   color: ${({ theme }) => theme['gray-800']};
   text-align: center;
   padding: 20px;
-  font-size: 1.1rem; /* Melhorado para legibilidade */
-  line-height: 1.8; /* Aumentado para melhor espaçamento entre as linhas */
+  font-size: 1.1rem;
+  line-height: 1.8;
 
   h2 {
     color: ${({ theme }) => theme['gray-900']};
-    margin-bottom: 20px; /* Adicionado espaçamento entre o título e o parágrafo */
+    margin-bottom: 20px;
   }
 
   p {
-    margin-bottom: 15px; /* Ajustado para espaçamento mais confortável */
+    margin-bottom: 15px;
   }
 
   strong {
@@ -123,5 +123,16 @@ export const Footer = styled.footer`
   display: flex;
   justify-content: center;
   width: 100%;
-  margin-top: 40px; /* Mantido o espaçamento suficiente para separar o conteúdo */
+  margin-top: 40px;
+`;
+
+export const ButtonGroup = styled.div`
+  display: flex;
+  gap: 5px;
+`;
+
+export const IconContainer = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 `;

@@ -1,12 +1,42 @@
+import { useNavigate } from 'react-router';
+import { useAuth } from '@/hooks/useAuth';
+import {
+  ButtonLogout,
+  Container,
+  Content,
+  Item,
+  Section,
+  Title,
+} from './styles';
 import { Sidebar } from '../Sidebar';
-import { Container, Content, Title, Section, Item } from './styles';
+import { useEffect } from 'react';
 
 export function Configurations() {
+  const navigate = useNavigate();
+  const { logout } = useAuth();
+
+  const handleLogout = async () => {
+    localStorage.removeItem('authToken');
+    logout();
+
+    window.location.reload();
+
+    navigate('/login', { replace: true });
+  };
+
+  useEffect(() => {
+    if (!localStorage.getItem('authToken')) {
+      navigate('/login');
+    }
+  }, [navigate]);
+
   return (
     <Container>
       <Sidebar />
       <Content>
         <Title>Configurações</Title>
+
+        {/* Configurações Gerais */}
         <Section>
           <h2>Configurações Gerais</h2>
           <Item>
@@ -24,6 +54,8 @@ export function Configurations() {
             </select>
           </Item>
         </Section>
+
+        {/* Configurações da Conta */}
         <Section>
           <h2>Conta</h2>
           <Item>
@@ -33,6 +65,8 @@ export function Configurations() {
             <button>Excluir Conta</button>
           </Item>
         </Section>
+
+        {/* Notificações */}
         <Section>
           <h2>Notificações</h2>
           <Item>
@@ -40,6 +74,13 @@ export function Configurations() {
               <input type="checkbox" />
               Receber notificações por e-mail
             </label>
+          </Item>
+        </Section>
+
+        {/* Botão para sair */}
+        <Section>
+          <Item>
+            <ButtonLogout onClick={handleLogout}>Sair</ButtonLogout>
           </Item>
         </Section>
       </Content>

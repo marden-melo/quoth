@@ -41,8 +41,10 @@ export const Form = styled.form`
 
 export const FormRow = styled.div`
   display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  position: relative;
   gap: 20px;
-  flex-wrap: wrap;
 `;
 
 export const FormRowHalf = styled(FormRow)`

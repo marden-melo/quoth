@@ -13,17 +13,21 @@ export const Content = styled.div`
   overflow-y: auto;
 `;
 
-export const Title = styled.h1`
-  color: ${({ theme }) => theme['gray-800']};
-  font-size: 2rem;
-  margin-bottom: 20px;
-  text-transform: uppercase;
+export const AvatarWrapper = styled.div`
+  background-color: #f0f0f0;
+  padding: 5px;
+  border-radius: 50%;
+  margin-right: 10px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 `;
 
 export const WelcomeMessage = styled.p`
   color: ${({ theme }) => theme['gray-600']};
   font-size: 1.3rem;
   margin-bottom: 40px;
+  margin-top: 2rem;
 `;
 
 export const CardContainer = styled.div`
@@ -112,4 +116,34 @@ export const ChartContainer = styled.div`
     text-align: center;
     font-weight: 500;
   }
+`;
+
+export const UserInfoContainer = styled.div`
+  position: absolute;
+  top: 20px;
+  right: 30px;
+  display: flex;
+  align-items: center;
+  background-color: ${({ theme }) => theme['gray-50']};
+  padding: 10px;
+  border-radius: 12px;
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+`;
+
+export const Avatar = styled.img`
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  margin-right: 10px;
+`;
+
+export const UserName = styled.p`
+  color: ${({ theme }) => theme['gray-800']};
+  font-size: 0.8;
+  font-weight: 500;
+`;
+
+export const UserEmail = styled.p`
+  color: ${({ theme }) => theme['gray-600']};
+  font-size: 0.7rem;
 `;

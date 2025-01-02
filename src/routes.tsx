@@ -1,31 +1,78 @@
-import { BrowserRouter as Router, Routes, Route } from 'react-router';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router';
 import { SignIn } from './pages/auth/SignIn';
+import { Apresentation } from './pages/auth/Apresentation';
+import { Register } from './pages/auth/Register';
 import { Home } from './pages/app/Home';
-import { Budget } from './pages/app/Budget';
 import { Dashboard } from './pages/app/Dashboard';
-import { Configurations } from './pages/app/Configurations';
+import { Budget } from './pages/app/Budget';
 import { ProductsAndServices } from './pages/app/ProductsAndServices';
 import { ListBudget } from './pages/app/ListBudget';
 import { Clients } from './pages/app/Clients';
-import { Apresentation } from './pages/auth/Apresentation';
+import { Configurations } from './pages/app/Configurations';
 import { NewProductService } from './pages/app/ProductsAndServices/NewProductService';
+import { SeeAllClients } from './pages/app/Clients/SeeAllClients';
 
-const ProtectedRoute = ({ element, isAuthenticated }: any) => {
+interface ProtectedRouteProps {
+  element: JSX.Element;
+  isAuthenticated: boolean;
+}
+
+const ProtectedRoute = ({ element, isAuthenticated }: ProtectedRouteProps) => {
   if (!isAuthenticated) {
-    return <SignIn />;
+    return <Navigate to="/login" replace />;
+  }
+  return element;
+};
+
+const PublicRoute = ({
+  element,
+  isAuthenticated,
+}: {
+  element: JSX.Element;
+  isAuthenticated: boolean;
+}) => {
+  if (isAuthenticated) {
+    return <Navigate to="/" replace />;
   }
   return element;
 };
 
 export const RoutesComponent = () => {
-  const isAuthenticated = true;
+  const isAuthenticated = Boolean(localStorage.getItem('authToken'));
 
   return (
     <Router>
       <Routes>
-        <Route path="/apresentation" element={<Apresentation />} />
-        <Route path="/login" element={<SignIn />} />
+        {/* Rotas Públicas */}
+        <Route
+          path="/apresentation"
+          element={
+            <PublicRoute
+              element={<Apresentation />}
+              isAuthenticated={isAuthenticated}
+            />
+          }
+        />
+        <Route
+          path="/login"
+          element={
+            <PublicRoute
+              element={<SignIn />}
+              isAuthenticated={isAuthenticated}
+            />
+          }
+        />
+        <Route
+          path="/register"
+          element={
+            <PublicRoute
+              element={<Register />}
+              isAuthenticated={isAuthenticated}
+            />
+          }
+        />
 
+        {/* Rotas Protegidas */}
         <Route
           path="/"
           element={
@@ -76,6 +123,15 @@ export const RoutesComponent = () => {
           element={
             <ProtectedRoute
               element={<Clients />}
+              isAuthenticated={isAuthenticated}
+            />
+          }
+        />
+        <Route
+          path="/see-clients"
+          element={
+            <ProtectedRoute
+              element={<SeeAllClients />}
               isAuthenticated={isAuthenticated}
             />
           }

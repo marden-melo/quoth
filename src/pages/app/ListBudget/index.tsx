@@ -66,7 +66,7 @@ export function ListBudget() {
   };
 
   const handleFilterClick = (status: string) => {
-    setSelectedFilter(selectedFilter === status ? null : status);
+    setSelectedFilter((prev) => (prev === status ? null : status));
   };
 
   const filteredBudgets = mockBudgets.filter((budget) => {
