@@ -11,6 +11,7 @@ import { Clients } from './pages/app/Clients';
 import { Configurations } from './pages/app/Configurations';
 import { NewProductService } from './pages/app/ProductsAndServices/NewProductService';
 import { SeeAllClients } from './pages/app/Clients/SeeAllClients';
+import { EditClients } from './pages/app/Clients/EditClients';
 
 interface ProtectedRouteProps {
   element: JSX.Element;
@@ -132,6 +133,15 @@ export const RoutesComponent = () => {
           element={
             <ProtectedRoute
               element={<SeeAllClients />}
+              isAuthenticated={isAuthenticated}
+            />
+          }
+        />
+        <Route
+          path="/edit-client/:id"
+          element={
+            <ProtectedRoute
+              element={<EditClients />}
               isAuthenticated={isAuthenticated}
             />
           }

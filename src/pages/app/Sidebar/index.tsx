@@ -5,6 +5,7 @@ import {
   ButtonContainer,
   ButtonContainerExit,
   StyledLink,
+  StyledLinkToHome,
 } from './styles';
 import Logo from '@/assets/logo_quoth300.png';
 import {
@@ -22,7 +23,9 @@ export function Sidebar() {
   return (
     <Container>
       <LogoContainer>
-        <img src={Logo} alt="Logo" width={100} height={50} />
+        <StyledLinkToHome to="/">
+          <img src={Logo} alt="Logo" width={100} height={50} />
+        </StyledLinkToHome>
       </LogoContainer>
       <ButtonContainer>
         <StyledLink to="/" end>

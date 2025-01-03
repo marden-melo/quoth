@@ -1,34 +1,47 @@
 import { useState, useEffect } from 'react';
-import { useForm, Controller } from 'react-hook-form';
+import { useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router';
 import { Sidebar } from '../Sidebar';
 import { Input } from '@/components/Input';
-import { Button } from '@/components/Button';
 import { PlusCircle, Pencil, Eye, Trash } from 'phosphor-react';
 import { IconButton } from '@/components/IconButton';
 import { useTheme } from 'styled-components';
+import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 import {
+  ActionIcons,
   Container,
   Content,
-  Title,
   IconButtonWrapper,
-  ProductList,
+  ProductDetails,
+  ProductInfo,
   ProductItem,
-  ActionIcons,
+  ProductList,
   SearchWrapper,
+  Title,
+  MessageWrapper,
 } from './styles';
+import { api } from '@/lib/axios';
+import { Loading } from '@/components/Loading';
+
+interface Category {
+  id: string;
+  name: string;
+}
 
 interface ProductServiceFormInputs {
+  id: string;
   name: string;
   description: string;
   price: number;
-  category: string;
+  category: Category;
   quantity: number;
 }
 
 export function ProductsAndServices() {
-  const [products, setProducts] = useState<any[]>([]);
+  const [products, setProducts] = useState<ProductServiceFormInputs[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
+  const [loading, setLoading] = useState(true);
   const {
     control,
     handleSubmit,
@@ -39,34 +52,24 @@ export function ProductsAndServices() {
   const theme = useTheme();
 
   useEffect(() => {
-    const mockData = [
-      {
-        id: '1',
-        name: 'Produto 1',
-        description: 'Descrição do produto 1',
-        price: 100,
-        category: 'Categoria A',
-        quantity: 10,
-      },
-      {
-        id: '2',
-        name: 'Serviço 1',
-        description: 'Descrição do serviço 1',
-        price: 200,
-        category: 'Categoria B',
-        quantity: 5,
-      },
-      {
-        id: '3',
-        name: 'Produto 2',
-        description: 'Descrição do produto 2',
-        price: 150,
-        category: 'Categoria A',
-        quantity: 20,
-      },
-    ];
+    const fetchData = async () => {
+      try {
+        const response = await api.get('/products-or-services');
 
-    setProducts(mockData);
+        if (response.data && Array.isArray(response.data.data)) {
+          setProducts(response.data.data);
+        } else {
+          setProducts([]);
+        }
+      } catch (error) {
+        toast.error('Erro ao carregar os produtos e serviços');
+        setProducts([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
   }, []);
 
   const onSubmit = (data: ProductServiceFormInputs) => {
@@ -119,43 +122,50 @@ export function ProductsAndServices() {
           </IconButtonWrapper>
         </SearchWrapper>
 
-        <ProductList>
-          {filteredProducts.map((product) => (
-            <ProductItem key={product.id}>
-              <div>
-                <h3>{product.name}</h3>
-                <p>{product.description}</p>
-                <p>
-                  <strong>Preço:</strong> {product.price}
-                </p>
-                <p>
-                  <strong>Categoria:</strong> {product.category}
-                </p>
-                <p>
-                  <strong>Quantidade:</strong> {product.quantity}
-                </p>
-              </div>
-              <ActionIcons>
-                <IconButton
-                  icon={<Pencil size={20} />}
-                  onClick={() => handleEdit(product.id)}
-                  text="Editar"
-                />
-                <IconButton
-                  icon={<Eye size={20} />}
-                  onClick={() => handleView(product.id)}
-                  text="Ver"
-                />
-                <IconButton
-                  icon={<Trash size={20} />}
-                  onClick={() => handleDelete(product.id)}
-                  text="Excluir"
-                />
-              </ActionIcons>
-            </ProductItem>
-          ))}
-        </ProductList>
+        {loading ? (
+          <Loading />
+        ) : filteredProducts.length > 0 ? (
+          <ProductList>
+            {filteredProducts.map((product) => (
+              <ProductItem key={product.id}>
+                <ProductInfo>
+                  <h3>{product.name}</h3>
+                  <ProductDetails>
+                    <p>
+                      <strong>Preço:</strong> {product.price}
+                    </p>
+                    <p>
+                      <strong>Categoria:</strong> {product.category.name}{' '}
+                      {/* Corrigido para acessar o nome da categoria */}
+                    </p>
+                    <p>
+                      <strong>Quantidade:</strong> {product.quantity}
+                    </p>
+                  </ProductDetails>
+                  <p>{product.description}</p>
+                </ProductInfo>
+                <ActionIcons>
+                  <IconButton
+                    onClick={() => handleEdit(product.id)}
+                    icon={<Pencil size={24} color={theme['blue-500']} />}
+                    text="Editar"
+                  />
+                  <IconButton
+                    onClick={() => handleDelete(product.id)}
+                    icon={<Trash size={24} color={theme['red-500']} />}
+                    text="Excluir"
+                  />
+                </ActionIcons>
+              </ProductItem>
+            ))}
+          </ProductList>
+        ) : (
+          <MessageWrapper>
+            <p>Não há produtos ou serviços cadastrados.</p>
+          </MessageWrapper>
+        )}
       </Content>
+      <ToastContainer />
     </Container>
   );
 }

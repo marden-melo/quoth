@@ -51,6 +51,15 @@ export const StyledLink = styled(NavLink)`
   }
 `;
 
+export const StyledLinkToHome = styled(NavLink)`
+  text-decoration: none;
+  font-family: ${({ theme }) => theme.fontFamily};
+  color: ${({ theme }) => theme.text};
+  display: flex;
+  align-items: center;
+  padding: 3px;
+`;
+
 export const ButtonContainerExit = styled.div`
   display: flex;
   flex-direction: column;

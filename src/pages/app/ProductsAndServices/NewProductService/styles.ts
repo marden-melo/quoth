@@ -12,21 +12,24 @@ export const Content = styled.div`
   overflow-y: auto;
 `;
 
+export const ArrowTitleContainer = styled.div`
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  margin-bottom: 2.5rem;
+`;
+
 export const Title = styled.h1`
   font-size: 24px;
   font-weight: 300;
   color: ${({ theme }) => theme['gray-900']};
-  margin-bottom: 24px;
+  margin-left: 1rem;
 `;
 
 export const Form = styled.form`
   display: flex;
   flex-direction: column;
-  gap: 24px;
-  background-color: ${({ theme }) => theme.white};
-  padding: 32px;
-  border-radius: 8px;
-  box-shadow: 0 4px 6px ${({ theme }) => theme['gray-300']};
+  gap: 20px;
 `;
 
 export const FormField = styled.div`

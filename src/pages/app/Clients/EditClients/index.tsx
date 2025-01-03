@@ -1,6 +1,7 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useForm, Controller } from 'react-hook-form';
-import { Sidebar } from '../Sidebar';
+import { useNavigate } from 'react-router';
+import { useParams } from 'react-router';
 import {
   Container,
   Content,
@@ -21,7 +22,7 @@ import { useTheme } from 'styled-components';
 import { api } from '@/lib/axios';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import { useNavigate } from 'react-router';
+import { Sidebar } from '../../Sidebar';
 import { ArrowCircleLeft } from 'phosphor-react';
 
 interface ClientFormInputs {
@@ -38,80 +39,81 @@ interface ClientFormInputs {
   cep?: string;
   responsable?: string;
   companyName?: string;
+  clientType: 'COMPANY' | 'INDIVIDUAL';
 }
 
-export function Clients() {
+export function EditClients() {
   const theme = useTheme();
+  const navigate = useNavigate();
+  const { id } = useParams<{ id: string }>();
   const [clientType, setClientType] = useState<'COMPANY' | 'INDIVIDUAL'>(
     'COMPANY'
   );
   const [isAddressEditable, setIsAddressEditable] = useState(false);
   const [loading, setLoading] = useState(false);
-  const navigate = useNavigate();
+
   const {
     control,
     handleSubmit,
     formState: { errors },
     reset,
     setValue,
-    getValues,
   } = useForm<ClientFormInputs>();
 
-  const createClient = async (
-    clientData: ClientFormInputs
-  ): Promise<boolean> => {
-    setLoading(true);
-    try {
-      await api.post('/client', clientData);
-      toast.success('Cliente criado com sucesso!', { position: 'top-right' });
-      return true;
-    } catch (error: any) {
-      toast.error('Erro ao cadastrar cliente.', {
-        position: 'top-right',
-      });
-      return false;
-    } finally {
-      setLoading(false);
-    }
-  };
+  useEffect(() => {
+    const fetchClientData = async () => {
+      if (!id) return;
 
-  const onSubmit = async (data: ClientFormInputs) => {
-    const clientData = { ...data, clientType };
+      try {
+        setLoading(true);
+        const { data } = await api.get(`/client/${id}`);
 
-    if (clientType === 'COMPANY') {
-      if (!clientData.cnpj || !clientData.fullName) {
-        toast.error('CNPJ e Nome da Empresa são obrigatórios para empresas.', {
+        const clientData = data.data as ClientFormInputs;
+
+        setValue('cnpj', clientData.cnpj || '');
+        setValue('companyName', clientData.companyName || '');
+        setValue('cpf', clientData.cpf || '');
+        setValue('fullName', clientData.fullName || '');
+        setValue('phone', clientData.phone || '');
+        setValue('email', clientData.email || '');
+        setValue('street', clientData.street || '');
+        setValue('district', clientData.district || '');
+        setValue('city', clientData.city || '');
+        setValue('state', clientData.state || '');
+        setValue('number', clientData.number || '');
+        setValue('cep', clientData.cep || '');
+        setValue('responsable', clientData.responsable || '');
+        setValue('clientType', clientData.clientType || 'COMPANY');
+
+        setClientType(clientData.clientType);
+      } catch (error) {
+        toast.error('Erro ao carregar os dados do cliente.', {
           position: 'top-right',
         });
-        return;
+      } finally {
+        setLoading(false);
       }
-    }
+    };
 
-    if (!data.phone || !data.email || !data.responsable) {
-      toast.error('Todos os campos são obrigatórios.', {
+    fetchClientData();
+  }, [id, setValue]);
+
+  const onSubmit = async (data: ClientFormInputs) => {
+    setLoading(true);
+    try {
+      const response = await api.put(`/client/${id}`, data);
+      if (response.status === 200) {
+        toast.success('Cliente atualizado com sucesso!', {
+          position: 'top-right',
+        });
+        navigate('/see-clients');
+      }
+    } catch (error) {
+      toast.error('Erro ao atualizar os dados do cliente.', {
         position: 'top-right',
       });
-      return;
-    }
-
-    const creationSuccess = await createClient(clientData);
-
-    if (creationSuccess) {
-      reset({
-        cnpj: '',
-        companyName: '',
-        cpf: '',
-        fullName: '',
-        phone: '',
-        email: '',
-        street: '',
-        district: '',
-        city: '',
-        number: '',
-        state: '',
-        cep: '',
-        responsable: '',
-      });
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -130,21 +132,9 @@ export function Clients() {
       state: '',
       cep: '',
       responsable: '',
+      clientType: 'COMPANY',
     });
     setClientType('COMPANY');
-  };
-
-  const handleClientTypeChange = (type: 'COMPANY' | 'INDIVIDUAL') => {
-    reset({
-      ...getValues(),
-      street: '',
-      district: '',
-      city: '',
-      state: '',
-      number: '',
-      cep: '',
-    });
-    setClientType(type);
   };
 
   const handleCepChange = async (cep: string) => {
@@ -178,27 +168,30 @@ export function Clients() {
             onClick={() => navigate('/see-clients')}
             style={{ cursor: 'pointer', marginRight: '10px' }}
           />
-          <Title>Cadastrar Cliente</Title>
+          <Title>Editar Cliente</Title>
         </ArrowTitleContainer>
         <Form onSubmit={handleSubmit(onSubmit)}>
           <SectionTitle>Tipo de Cliente</SectionTitle>
           <FormRow>
-            <Button
-              type="button"
-              active={clientType === 'COMPANY'}
-              backgroundColor={theme['cyan-500']}
-              onClick={() => handleClientTypeChange('COMPANY')}
-            >
-              Empresa
-            </Button>
-            <Button
-              type="button"
-              active={clientType === 'INDIVIDUAL'}
-              backgroundColor={theme['cyan-500']}
-              onClick={() => handleClientTypeChange('INDIVIDUAL')}
-            >
-              Pessoa Física
-            </Button>
+            {clientType === 'COMPANY' ? (
+              <Button
+                type="button"
+                active={true}
+                backgroundColor={theme['gray-500']}
+                disabled
+              >
+                Empresa
+              </Button>
+            ) : (
+              <Button
+                type="button"
+                active={false}
+                backgroundColor={theme['gray-500']}
+                disabled
+              >
+                Pessoa Física
+              </Button>
+            )}
           </FormRow>
 
           {clientType === 'COMPANY' ? (
@@ -217,13 +210,13 @@ export function Clients() {
                   )}
                 />
                 <Controller
-                  name="fullName"
+                  name="companyName"
                   control={control}
                   render={({ field }) => (
                     <Input
                       {...field}
                       placeholder="Nome da Empresa"
-                      error={errors.fullName?.message}
+                      error={errors.companyName?.message}
                     />
                   )}
                 />
@@ -313,6 +306,7 @@ export function Clients() {
                 <Controller
                   name="cpf"
                   control={control}
+                  defaultValue=""
                   render={({ field }) => (
                     <Input
                       {...field}
@@ -427,24 +421,24 @@ export function Clients() {
               )}
             />
             <Controller
-              name="phone"
-              control={control}
-              render={({ field }) => (
-                <Input
-                  {...field}
-                  placeholder="Digite o Telefone"
-                  error={errors.phone?.message}
-                />
-              )}
-            />
-            <Controller
               name="email"
               control={control}
               render={({ field }) => (
                 <Input
                   {...field}
-                  placeholder="Digite o E-mail"
+                  placeholder="E-mail"
                   error={errors.email?.message}
+                />
+              )}
+            />
+            <Controller
+              name="phone"
+              control={control}
+              render={({ field }) => (
+                <Input
+                  {...field}
+                  placeholder="Telefone"
+                  error={errors.phone?.message}
                 />
               )}
             />
@@ -456,7 +450,7 @@ export function Clients() {
               backgroundColor={theme['green-300']}
               disabled={loading}
             >
-              {loading ? 'Cadastrando' : 'Cadastrar'}
+              {loading ? 'Editando' : 'Editar'}
             </Button>
             <Button
               type="button"

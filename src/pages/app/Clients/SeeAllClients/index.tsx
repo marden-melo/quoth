@@ -24,6 +24,9 @@ import { Sidebar } from '../../Sidebar';
 import { Input } from '@/components/Input';
 import { Loading } from '@/components/Loading';
 import { ModalConfirm } from '@/components/modalConfirm';
+import { maskCnpj } from '@/utils/masks/maskCNPJ';
+import { maskPhone } from '@/utils/masks/maskPhone';
+import { maskCpf } from '@/utils/masks/maskCPF';
 
 interface Client {
   id: string;
@@ -57,7 +60,6 @@ export function SeeAllClients() {
 
   const fetchClients = async () => {
     setLoading(true);
-
     try {
       const response = await api.get('/clients');
       setClients(response.data.data);
@@ -107,6 +109,37 @@ export function SeeAllClients() {
     setExpandedClient((prev) => (prev === id ? null : id));
   };
 
+  const filteredClients = clients.filter((client) => {
+    const searchLower = searchTerm.toLowerCase();
+
+    const isFullNameMatch =
+      client.fullName && client.fullName.toLowerCase().includes(searchLower);
+    const isCompanyNameMatch =
+      client.companyName &&
+      client.companyName.toLowerCase().includes(searchLower);
+    const isCpfMatch = client.cpf && client.cpf.includes(searchLower);
+    const isCnpjMatch = client.cnpj && client.cnpj.includes(searchLower);
+    const isPhoneMatch = client.phone && client.phone.includes(searchLower);
+    const isCityMatch =
+      client.city && client.city.toLowerCase().includes(searchLower);
+    const isResponsableMatch =
+      client.responsable &&
+      client.responsable.toLowerCase().includes(searchLower);
+    const isStateMatch =
+      client.state && client.state.toLowerCase().includes(searchLower);
+
+    return (
+      isFullNameMatch ||
+      isCompanyNameMatch ||
+      isCpfMatch ||
+      isCnpjMatch ||
+      isPhoneMatch ||
+      isCityMatch ||
+      isResponsableMatch ||
+      isStateMatch
+    );
+  });
+
   return (
     <Container>
       <Sidebar />
@@ -138,7 +171,7 @@ export function SeeAllClients() {
           ) : clients.length === 0 ? (
             <EmptyMessage>Não há clientes cadastrados</EmptyMessage>
           ) : (
-            clients.map((client) => (
+            filteredClients.map((client) => (
               <ClientCard key={client.id}>
                 <ClientInfoContainer>
                   <ClientTitleText>
@@ -148,16 +181,16 @@ export function SeeAllClients() {
                   <ClientText>
                     {client.cpf ? (
                       <>
-                        <TitleItems>CPF:</TitleItems> {client.cpf}
+                        <TitleItems>CPF:</TitleItems> {maskCpf(client.cpf)}
                       </>
                     ) : (
                       <>
-                        <TitleItems>CNPJ:</TitleItems> {client.cnpj}
+                        <TitleItems>CNPJ:</TitleItems> {maskCnpj(client.cnpj)}
                       </>
                     )}
                   </ClientText>
                   <ClientText>
-                    <TitleItems>Contato:</TitleItems> {client.phone}
+                    <TitleItems>Contato:</TitleItems> {maskPhone(client.phone)}
                   </ClientText>
 
                   {expandedClient === client.id && (

@@ -19,10 +19,18 @@ export const Header = styled.div`
   margin-bottom: 20px;
 `;
 
+export const ArrowTitleContainer = styled.div`
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  margin-bottom: 2.5rem;
+`;
+
 export const Title = styled.h1`
   font-size: 24px;
   font-weight: 300;
   color: ${({ theme }) => theme['gray-900']};
+  margin-left: 1rem;
 `;
 
 export const SectionTitle = styled.h2`
@@ -54,13 +62,6 @@ export const FormRowHalf = styled(FormRow)`
   @media (max-width: 768px) {
     grid-template-columns: 1fr;
   }
-`;
-
-export const ArrowTitleContainer = styled.div`
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  margin-bottom: 2.5rem;
 `;
 
 export const FormRowCustom = styled.div`

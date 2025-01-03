@@ -55,11 +55,11 @@ export const ProductItem = styled.div`
     box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
     background-color: ${({ theme }) => theme['gray-200']};
   }
+`;
 
-  div {
-    flex: 1;
-    margin-right: 16px;
-  }
+export const ProductInfo = styled.div`
+  flex: 1;
+  margin-right: 16px;
 
   h3 {
     font-size: 1.2rem;
@@ -75,39 +75,32 @@ export const ProductItem = styled.div`
   }
 `;
 
+export const ProductDetails = styled.div`
+  p {
+    font-size: 0.95rem;
+    color: ${({ theme }) => theme['gray-600']};
+    margin: 4px 0;
+  }
+
+  strong {
+    font-weight: 600;
+  }
+`;
+
 export const ActionIcons = styled.div`
   display: flex;
-  justify-content: flex-start;
   gap: 10px;
   align-items: center;
+  margin-right: 2rem;
+`;
 
-  button {
-    background: ${({ theme }) => theme['gray-200']};
-    border: 2px solid transparent;
-    padding: 8px;
-    transition:
-      background-color 0.2s ease,
-      transform 0.2s ease;
+export const MessageWrapper = styled.div`
+  display: flex;
+  justify-content: center;
 
-    &:hover {
-      background-color: ${({ theme }) => theme['blue-200']};
-    }
-
-    &:active {
-      transform: scale(0.9);
-    }
-
-    svg {
-      color: ${({ theme }) => theme['gray-600']};
-    }
-
-    &.delete:hover {
-      background-color: ${({ theme }) => theme['red-300']};
-    }
-
-    &.edit:hover,
-    &.view:hover {
-      transform: scale(1.1);
-    }
-  }
+  height: 100%;
+  text-align: center;
+  font-size: 1.2rem;
+  color: ${({ theme }) => theme['gray-600']};
+  padding: 20px;
 `;

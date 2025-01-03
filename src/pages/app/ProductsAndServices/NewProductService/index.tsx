@@ -13,8 +13,11 @@ import {
   ButtonWrapper,
   FormRowHalf,
   FormRowBottom,
+  ArrowTitleContainer,
 } from './styles';
 import { Sidebar } from '../../Sidebar';
+import { ArrowCircleLeft } from 'phosphor-react';
+import { ToastContainer } from 'react-toastify';
 
 interface ProductServiceFormInputs {
   name: string;
@@ -26,6 +29,8 @@ interface ProductServiceFormInputs {
 
 export function NewProductService() {
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [loading, setLoading] = useState(false);
+
   const [categories, setCategories] = useState<string[]>([]); // Estado para as categorias
   const {
     control,
@@ -71,7 +76,16 @@ export function NewProductService() {
     <Container>
       <Sidebar />
       <Content>
-        <Title>Cadastrar Novo Produto ou Serviço</Title>
+        <ToastContainer />
+        <ArrowTitleContainer>
+          <ArrowCircleLeft
+            size={32}
+            color={theme['gray-500']}
+            onClick={() => navigate('/productsservices')}
+            style={{ cursor: 'pointer', marginRight: '10px' }}
+          />
+          <Title>Cadastar Produto ou Serviço</Title>
+        </ArrowTitleContainer>
         <Form onSubmit={handleSubmit(onSubmit)}>
           <FormRowHalf>
             <FormField>
@@ -144,10 +158,18 @@ export function NewProductService() {
           </FormRowHalf>
 
           <FormRowBottom>
-            <Button type="submit" backgroundColor={theme['green-300']}>
-              Cadastrar
+            <Button
+              type="submit"
+              backgroundColor={theme['green-300']}
+              disabled={loading}
+            >
+              {loading ? 'Cadastrando' : 'Cadastrar'}
             </Button>
-            <Button type="button" onClick={handleCancel} cancel>
+            <Button
+              type="button"
+              backgroundColor={theme['red-300']}
+              onClick={handleCancel}
+            >
               Cancelar
             </Button>
           </FormRowBottom>
