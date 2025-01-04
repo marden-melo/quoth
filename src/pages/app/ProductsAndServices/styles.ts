@@ -34,21 +34,28 @@ export const IconButtonWrapper = styled.div`
 `;
 
 export const ProductList = styled.div`
-  margin-top: 20px;
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 15px;
+  overflow-y: auto;
+  max-height: 80vh;
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+
+  ::-webkit-scrollbar {
+    display: none;
+  }
 `;
 
 export const ProductItem = styled.div`
   display: flex;
   justify-content: space-between;
-  background-color: ${({ theme }) => theme['gray-50']};
+  background-color: ${({ theme }) => theme.white};
   padding: 12px;
   border-radius: 8px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   transition: all 0.3s ease;
-  min-height: 120px;
+  min-height: 160px;
 
   &:hover {
     transform: translateY(-5px);

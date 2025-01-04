@@ -1,9 +1,8 @@
 import { useState, useEffect } from 'react';
-import { useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router';
 import { Sidebar } from '../Sidebar';
 import { Input } from '@/components/Input';
-import { PlusCircle, Pencil, Eye, Trash } from 'phosphor-react';
+import { PlusCircle, Pencil, Trash } from 'phosphor-react';
 import { IconButton } from '@/components/IconButton';
 import { useTheme } from 'styled-components';
 import { toast, ToastContainer } from 'react-toastify';
@@ -23,6 +22,7 @@ import {
 } from './styles';
 import { api } from '@/lib/axios';
 import { Loading } from '@/components/Loading';
+import { ModalConfirm } from '@/components/modalConfirm';
 
 interface Category {
   id: string;
@@ -41,57 +41,64 @@ interface ProductServiceFormInputs {
 export function ProductsAndServices() {
   const [products, setProducts] = useState<ProductServiceFormInputs[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
+
+  const [modalVisible, setModalVisible] = useState(false);
+  const [clientToDelete, setClientToDelete] = useState<string | null>(null);
+
   const [loading, setLoading] = useState(true);
-  const {
-    control,
-    handleSubmit,
-    formState: { errors },
-    reset,
-  } = useForm<ProductServiceFormInputs>();
+
   const navigate = useNavigate();
   const theme = useTheme();
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const response = await api.get('/products-or-services');
+  const fetchData = async () => {
+    try {
+      const response = await api.get('/products-or-services');
 
-        if (response.data && Array.isArray(response.data.data)) {
-          setProducts(response.data.data);
-        } else {
-          setProducts([]);
-        }
-      } catch (error) {
-        toast.error('Erro ao carregar os produtos e serviços');
+      if (response.data && Array.isArray(response.data.data)) {
+        setProducts(response.data.data);
+      } else {
         setProducts([]);
-      } finally {
-        setLoading(false);
       }
-    };
+    } catch (error) {
+      toast.error('Erro ao carregar os produtos e serviços');
+      setProducts([]);
+    } finally {
+      setLoading(false);
+    }
+  };
 
+  useEffect(() => {
     fetchData();
   }, []);
 
-  const onSubmit = (data: ProductServiceFormInputs) => {
-    console.log(data);
-    reset();
-  };
-
-  const handleNavigation = () => {
-    navigate('/products-services-list');
+  const handleDelete = async () => {
+    if (clientToDelete) {
+      try {
+        await api.delete(`/product-or-service/${clientToDelete}`);
+        toast.success('Item deletado com sucesso!', {
+          position: 'top-right',
+        });
+        fetchData();
+      } catch (error) {
+        toast.error('Erro ao deletar item.', { position: 'top-right' });
+      } finally {
+        closeDeleteModal();
+      }
+    }
   };
 
   const handleEdit = (id: string) => {
-    console.log(`Editando item ${id}`);
+    navigate(`/edit-product-service/${id}`);
   };
 
-  const handleView = (id: string) => {
-    console.log(`Exibindo detalhes do item ${id}`);
+  const openDeleteModal = (id: string) => {
+    setClientToDelete(id);
+    setModalVisible(true);
   };
 
-  const handleDelete = (id: string) => {
-    console.log(`Excluindo item ${id}`);
-    setProducts(products.filter((product) => product.id !== id));
+  const closeDeleteModal = () => {
+    setModalVisible(false);
+    setClientToDelete(null);
   };
 
   const filteredProducts = products.filter((product) =>
@@ -103,7 +110,17 @@ export function ProductsAndServices() {
       <Sidebar />
       <Content>
         <Title>Produtos e Serviços</Title>
-
+        <ToastContainer
+          position="top-right"
+          autoClose={5000}
+          hideProgressBar={false}
+          newestOnTop={false}
+          closeOnClick
+          rtl={false}
+          pauseOnFocusLoss
+          draggable
+          pauseOnHover
+        />
         <SearchWrapper>
           <Input
             type="text"
@@ -132,11 +149,13 @@ export function ProductsAndServices() {
                   <h3>{product.name}</h3>
                   <ProductDetails>
                     <p>
-                      <strong>Preço:</strong> {product.price}
+                      {new Intl.NumberFormat('pt-BR', {
+                        style: 'currency',
+                        currency: 'BRL',
+                      }).format(product.price)}
                     </p>
                     <p>
                       <strong>Categoria:</strong> {product.category.name}{' '}
-                      {/* Corrigido para acessar o nome da categoria */}
                     </p>
                     <p>
                       <strong>Quantidade:</strong> {product.quantity}
@@ -151,7 +170,7 @@ export function ProductsAndServices() {
                     text="Editar"
                   />
                   <IconButton
-                    onClick={() => handleDelete(product.id)}
+                    onClick={() => openDeleteModal(product.id)}
                     icon={<Trash size={24} color={theme['red-500']} />}
                     text="Excluir"
                   />
@@ -165,7 +184,13 @@ export function ProductsAndServices() {
           </MessageWrapper>
         )}
       </Content>
-      <ToastContainer />
+      {modalVisible && (
+        <ModalConfirm
+          message="Tem certeza que deseja excluir?"
+          onConfirm={handleDelete}
+          onCancel={closeDeleteModal}
+        />
+      )}
     </Container>
   );
 }
