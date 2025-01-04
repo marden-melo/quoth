@@ -38,7 +38,6 @@ interface Category {
 
 export function NewProductService() {
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [loading, setLoading] = useState(false);
   const [categories, setCategories] = useState<Category[]>([]);
   const {
     control,

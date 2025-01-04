@@ -32,39 +32,10 @@ export const Form = styled.form`
   gap: 20px;
 `;
 
-export const FormField = styled.div`
+export const FormRowCustom = styled.div`
   display: flex;
-  flex-direction: column;
-
-  label {
-    font-size: 1rem;
-    color: ${({ theme }) => theme['gray-800']};
-    margin-bottom: 8px;
-  }
-
-  span {
-    font-size: 0.875rem;
-    color: ${({ theme }) => theme['red-500']};
-    margin-top: 4px;
-  }
-
-  input,
-  select,
-  textarea {
-    padding: 12px 16px;
-    font-size: 1rem;
-    border-radius: 8px;
-    border: 1px solid ${({ theme }) => theme['gray-300']};
-
-    &:focus {
-      outline: none;
-      border-color: ${({ theme }) => theme['blue-300']};
-    }
-  }
-
-  textarea {
-    resize: none;
-  }
+  gap: 16px;
+  flex-wrap: wrap;
 `;
 
 export const FormRowHalf = styled.div`
@@ -120,7 +91,7 @@ export const CategoryWrapper = styled.div`
   }
 `;
 
-export const CategoryButton = styled.button`
+export const CategoryButton = styled.button<{ active: boolean }>`
   display: flex;
   align-items: center;
   justify-content: center;
@@ -132,6 +103,8 @@ export const CategoryButton = styled.button`
   border-radius: 8px;
   cursor: pointer;
   transition: background-color 0.3s ease;
+  background-color: ${({ active, theme }) =>
+    active ? theme['blue-200'] : 'transparent'};
 
   &:hover {
     background-color: ${({ theme }) => theme['blue-100']};

@@ -11,7 +11,6 @@ import {
   Header,
   WhatsAppButton,
   ButtonGroup,
-  IconContainer,
 } from './styles';
 import { IconButton } from '@/components/IconButton';
 import { User, Lock, List, WhatsappLogo } from 'phosphor-react';

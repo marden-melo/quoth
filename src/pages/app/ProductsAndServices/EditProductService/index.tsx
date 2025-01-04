@@ -11,16 +11,14 @@ import {
   Content,
   Title,
   Form,
-  SectionTitle,
   FormRowCustom,
-  FormRowHalf,
   FormRowBottom,
   ArrowTitleContainer,
-  CategoryWrapper,
   CategoryButton,
 } from './styles';
 import { Sidebar } from '../../Sidebar';
 import { ArrowCircleLeft } from 'phosphor-react';
+import { SectionTitle } from '../../Budget/styles';
 
 interface ProductServiceFormInputs {
   name: string;
@@ -41,7 +39,6 @@ export function EditProductAndService() {
   const navigate = useNavigate();
   const { id } = useParams<{ id: string }>();
   const [categories, setCategories] = useState<Category[]>([]);
-  const [loading, setLoading] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const {
@@ -66,7 +63,6 @@ export function EditProductAndService() {
       if (!id) return;
 
       try {
-        setLoading(true);
         const { data } = await api.get(`/product-service/${id}`);
         const productServiceData = data.data as ProductServiceFormInputs;
 
@@ -79,7 +75,6 @@ export function EditProductAndService() {
       } catch (error) {
         toast.error('Erro ao carregar os dados do produto/serviço.');
       } finally {
-        setLoading(false);
       }
     };
 
@@ -146,14 +141,12 @@ export function EditProductAndService() {
               render={({ field }) => (
                 <>
                   <CategoryButton
-                    type="button"
                     active={field.value === 'PRODUCT'}
                     onClick={() => setValue('type', 'PRODUCT')}
                   >
                     Produto
                   </CategoryButton>
                   <CategoryButton
-                    type="button"
                     active={field.value === 'SERVICE'}
                     onClick={() => setValue('type', 'SERVICE')}
                   >
@@ -238,18 +231,10 @@ export function EditProductAndService() {
           </FormRowCustom>
 
           <FormRowBottom>
-            <Button
-              type="submit"
-              backgroundColor={theme['green-300']}
-              disabled={isSubmitting}
-            >
+            <Button type="submit" disabled={isSubmitting}>
               {isSubmitting ? 'Editando...' : 'Editar'}
             </Button>
-            <Button
-              type="button"
-              backgroundColor={theme['red-300']}
-              onClick={handleCancel}
-            >
+            <Button type="button" onClick={handleCancel}>
               Cancelar
             </Button>
           </FormRowBottom>
