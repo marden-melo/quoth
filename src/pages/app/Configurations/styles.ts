@@ -3,85 +3,94 @@ import styled from 'styled-components';
 export const Container = styled.div`
   display: flex;
   height: 100vh;
-  background-color: ${({ theme }) => theme.background};
-  font-family: 'Roboto', sans-serif;
 `;
 
-export const Content = styled.div`
+export const Content = styled.main`
   flex: 1;
-  padding: 30px;
-  overflow-y: auto;
+  padding: 2rem;
+  background-color: #f9f9f9;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+`;
+
+export const SettingsContainer = styled.div`
   max-width: 900px;
   margin: 0 auto;
+  padding: 2rem;
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 `;
 
-export const Title = styled.h1`
-  color: ${({ theme }) => theme['gray-800']};
-  font-size: 2.5rem;
-  margin-bottom: 30px;
+export const SettingsTitle = styled.h1`
   text-align: center;
+  font-size: 2rem;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 2rem;
 `;
 
-export const Section = styled.div`
-  margin-bottom: 30px;
-
+export const Section = styled.section`
+  margin-bottom: 2rem;
   h2 {
-    font-size: 1.8rem;
-    color: ${({ theme }) => theme['gray-600']};
-    margin-bottom: 15px;
+    font-size: 1.25rem;
     font-weight: 500;
+    color: #555;
+    margin-bottom: 1rem;
   }
 `;
 
 export const Item = styled.div`
-  margin-bottom: 15px;
+  margin-bottom: 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+`;
 
-  label {
-    font-size: 1.1rem;
-    color: ${({ theme }) => theme['gray-800']};
-    margin-bottom: 8px;
-    display: block;
+export const SelectInput = styled.select`
+  padding: 0.5rem;
+  font-size: 1rem;
+  border-radius: 4px;
+  border: 1px solid #ddd;
+  width: 100%;
+  max-width: 250px;
+  transition: border-color 0.3s ease;
+
+  &:focus {
+    border-color: #007bff;
+    outline: none;
   }
+`;
 
-  select,
+export const ButtonWrapper = styled.div`
   button {
-    width: 100%;
-    padding: 12px 18px;
-    border: 1px solid ${({ theme }) => theme['gray-300']};
-    border-radius: 8px;
-    background: ${({ theme }) => theme.background};
-    color: ${({ theme }) => theme['gray-800']};
+    padding: 0.75rem 1.5rem;
     font-size: 1rem;
-    transition: all 0.3s ease;
+    font-weight: 600;
+    border-radius: 4px;
+    border: none;
+    background-color: #007bff;
+    color: white;
+    transition: background-color 0.3s ease;
     cursor: pointer;
 
     &:hover {
-      border-color: ${({ theme }) => theme['blue-500']};
-    }
-
-    &:focus {
-      border-color: ${({ theme }) => theme['blue-500']};
-      outline: none;
+      background-color: #0056b3;
     }
   }
 `;
 
 export const ButtonLogout = styled.button`
+  padding: 0.75rem 2rem;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #fff;
+  background-color: #dc3545;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
   width: 100%;
-  padding: 12px 18px;
-  border: 1px solid ${({ theme }) => theme['red-500']};
-  background-color: ${({ theme }) => theme['red-500']};
-  color: white;
-  font-size: 1.1rem;
-  border-radius: 8px;
-  font-weight: 500;
-  transition: all 0.3s ease;
 
   &:hover {
-    background-color: ${({ theme }) => theme['red-600']};
-  }
-
-  &:focus {
-    outline: none;
+    background-color: #c82333;
   }
 `;

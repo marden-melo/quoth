@@ -1,9 +1,9 @@
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router';
 import { useAuth } from '@/hooks/useAuth';
 import { ArrowLeft } from 'phosphor-react';
-import { ToastContainer, toast } from 'react-toastify'; // Importando o toastify
-import 'react-toastify/dist/ReactToastify.css'; // Importando os estilos
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 import {
   Container,
   FormWrapper,
@@ -43,12 +43,6 @@ export function SignIn() {
   const { login, isAuthenticated } = useAuth();
   const navigate = useNavigate();
 
-  useEffect(() => {
-    if (isAuthenticated) {
-      window.location.reload();
-    }
-  }, [isAuthenticated]);
-
   const handleSignIn = async (e: any) => {
     e.preventDefault();
 
@@ -59,7 +53,20 @@ export function SignIn() {
 
     try {
       const success = await login(email, password);
-      if (!success) {
+
+      if (success) {
+        toast.dismiss();
+        toast.success('Login realizado com sucesso!', {
+          autoClose: 3000,
+          style: customToastStyle.success,
+        });
+
+        setTimeout(() => {
+          window.location.reload();
+        }, 2000);
+
+        navigate('/');
+      } else {
         toast.dismiss();
         toast.error('Erro ao fazer login', { style: customToastStyle.error });
       }
