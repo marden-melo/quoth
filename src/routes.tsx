@@ -1,4 +1,5 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router';
+
 import { SignIn } from './pages/auth/SignIn';
 import { Apresentation } from './pages/auth/Apresentation';
 import { Register } from './pages/auth/Register';
@@ -14,33 +15,10 @@ import { SeeAllClients } from './pages/app/Clients/SeeAllClients';
 import { EditClients } from './pages/app/Clients/EditClients';
 import { EditProductAndService } from './pages/app/ProductsAndServices/EditProductService';
 
-interface ProtectedRouteProps {
-  element: JSX.Element;
-  isAuthenticated: boolean;
-}
-
-const ProtectedRoute = ({ element, isAuthenticated }: ProtectedRouteProps) => {
-  if (!isAuthenticated) {
-    return <Navigate to="/login" replace />;
-  }
-  return element;
-};
-
-const PublicRoute = ({
-  element,
-  isAuthenticated,
-}: {
-  element: JSX.Element;
-  isAuthenticated: boolean;
-}) => {
-  if (isAuthenticated) {
-    return <Navigate to="/" replace />;
-  }
-  return element;
-};
+import { useAuth } from './hooks/useAuth'; // Assumindo que o hook esteja em 'hooks'
 
 export const RoutesComponent = () => {
-  const isAuthenticated = Boolean(localStorage.getItem('authToken'));
+  const { isAuthenticated } = useAuth();
 
   return (
     <Router>
@@ -49,129 +27,103 @@ export const RoutesComponent = () => {
         <Route
           path="/apresentation"
           element={
-            <PublicRoute
-              element={<Apresentation />}
-              isAuthenticated={isAuthenticated}
-            />
+            isAuthenticated ? <Navigate to="/" replace /> : <Apresentation />
           }
         />
         <Route
           path="/login"
-          element={
-            <PublicRoute
-              element={<SignIn />}
-              isAuthenticated={isAuthenticated}
-            />
-          }
+          element={isAuthenticated ? <Navigate to="/" replace /> : <SignIn />}
         />
         <Route
           path="/register"
-          element={
-            <PublicRoute
-              element={<Register />}
-              isAuthenticated={isAuthenticated}
-            />
-          }
+          element={isAuthenticated ? <Navigate to="/" replace /> : <Register />}
         />
 
         {/* Rotas Protegidas */}
         <Route
           path="/"
           element={
-            <ProtectedRoute
-              element={<Home />}
-              isAuthenticated={isAuthenticated}
-            />
+            isAuthenticated ? <Home /> : <Navigate to="/login" replace />
           }
         />
         <Route
           path="/newbudget"
           element={
-            <ProtectedRoute
-              element={<Budget />}
-              isAuthenticated={isAuthenticated}
-            />
+            isAuthenticated ? <Budget /> : <Navigate to="/login" replace />
           }
         />
         <Route
           path="/listbudget"
           element={
-            <ProtectedRoute
-              element={<ListBudget />}
-              isAuthenticated={isAuthenticated}
-            />
+            isAuthenticated ? <ListBudget /> : <Navigate to="/login" replace />
           }
         />
         <Route
           path="/productsservices"
           element={
-            <ProtectedRoute
-              element={<ProductsAndServices />}
-              isAuthenticated={isAuthenticated}
-            />
+            isAuthenticated ? (
+              <ProductsAndServices />
+            ) : (
+              <Navigate to="/login" replace />
+            )
           }
         />
         <Route
           path="/add-product-service"
           element={
-            <ProtectedRoute
-              element={<NewProductService />}
-              isAuthenticated={isAuthenticated}
-            />
+            isAuthenticated ? (
+              <NewProductService />
+            ) : (
+              <Navigate to="/login" replace />
+            )
           }
         />
         <Route
           path="/edit-product-service/:id"
           element={
-            <ProtectedRoute
-              element={<EditProductAndService />}
-              isAuthenticated={isAuthenticated}
-            />
+            isAuthenticated ? (
+              <EditProductAndService />
+            ) : (
+              <Navigate to="/login" replace />
+            )
           }
         />
         <Route
           path="/clients"
           element={
-            <ProtectedRoute
-              element={<Clients />}
-              isAuthenticated={isAuthenticated}
-            />
+            isAuthenticated ? <Clients /> : <Navigate to="/login" replace />
           }
         />
         <Route
           path="/see-clients"
           element={
-            <ProtectedRoute
-              element={<SeeAllClients />}
-              isAuthenticated={isAuthenticated}
-            />
+            isAuthenticated ? (
+              <SeeAllClients />
+            ) : (
+              <Navigate to="/login" replace />
+            )
           }
         />
         <Route
           path="/edit-client/:id"
           element={
-            <ProtectedRoute
-              element={<EditClients />}
-              isAuthenticated={isAuthenticated}
-            />
+            isAuthenticated ? <EditClients /> : <Navigate to="/login" replace />
           }
         />
         <Route
           path="/dashboard"
           element={
-            <ProtectedRoute
-              element={<Dashboard />}
-              isAuthenticated={isAuthenticated}
-            />
+            isAuthenticated ? <Dashboard /> : <Navigate to="/login" replace />
           }
         />
         <Route
           path="/configurations"
           element={
-            <ProtectedRoute
-              element={<Configurations />}
-              isAuthenticated={isAuthenticated}
-            />
+            isAuthenticated ? (
+              <Configurations />
+            ) : (
+              <Navigate to="/login" replace />
+            )
           }
         />
       </Routes>

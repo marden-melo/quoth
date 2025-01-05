@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router';
 import { useAuth } from '@/hooks/useAuth';
 import { ArrowLeft } from 'phosphor-react';
@@ -43,36 +43,31 @@ export function SignIn() {
   const { login } = useAuth();
   const navigate = useNavigate();
 
-  const handleSignIn = async (e: any) => {
+  const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    toast.info('Acessando.', {
+    // Exibe o toast enquanto processa
+    const toastId = toast.info('Acessando...', {
       autoClose: false,
       style: customToastStyle.info,
     });
 
     try {
       const success = await login(email, password);
-
       if (success) {
-        toast.dismiss();
-        toast.success('Login realizado com sucesso!', {
-          autoClose: 3000,
+        toast.dismiss(toastId); // Remove o toast de carregamento
+        toast.success('Login bem-sucedido!', {
           style: customToastStyle.success,
         });
-
-        setTimeout(() => {
-          window.location.reload();
-        }, 2000);
-
-        navigate('/');
+        navigate('/'); // Redireciona automaticamente
       } else {
-        toast.dismiss();
-        toast.error('Erro ao fazer login', { style: customToastStyle.error });
+        throw new Error('Erro ao fazer login');
       }
-    } catch (error) {
-      toast.dismiss();
-      toast.error('Erro ao fazer login', { style: customToastStyle.error });
+    } catch (error: any) {
+      toast.dismiss(toastId); // Remove o toast de carregamento
+      toast.error(error.message || 'Erro ao fazer login', {
+        style: customToastStyle.error,
+      });
     }
   };
 
@@ -115,7 +110,6 @@ export function SignIn() {
         </LinkText>
       </FormWrapper>
 
-      {/* ToastContainer para renderizar os toasts */}
       <ToastContainer
         position="top-right"
         autoClose={5000}
