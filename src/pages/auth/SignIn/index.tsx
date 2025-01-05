@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router';
 import { useAuth } from '@/hooks/useAuth';
 import { ArrowLeft } from 'phosphor-react';
@@ -55,16 +55,16 @@ export function SignIn() {
     try {
       const success = await login(email, password);
       if (success) {
-        toast.dismiss(toastId); // Remove o toast de carregamento
+        toast.dismiss(toastId);
         toast.success('Login bem-sucedido!', {
           style: customToastStyle.success,
         });
-        navigate('/'); // Redireciona automaticamente
+        navigate('/');
       } else {
         throw new Error('Erro ao fazer login');
       }
     } catch (error: any) {
-      toast.dismiss(toastId); // Remove o toast de carregamento
+      toast.dismiss(toastId);
       toast.error(error.message || 'Erro ao fazer login', {
         style: customToastStyle.error,
       });
