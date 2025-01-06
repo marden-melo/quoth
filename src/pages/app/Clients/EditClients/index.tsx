@@ -42,16 +42,14 @@ interface ClientFormInputs {
   cep?: string;
   responsable?: string;
   companyName?: string;
-  clientType: 'COMPANY' | 'INDIVIDUAL';
+  clientType: string;
 }
 
 export function EditClients() {
   const theme = useTheme();
   const navigate = useNavigate();
   const { id } = useParams<{ id: string }>();
-  const [clientType, setClientType] = useState<'COMPANY' | 'INDIVIDUAL'>(
-    'COMPANY'
-  );
+  const [clientType, setClientType] = useState<string>('COMPANY');
   const [isAddressEditable, setIsAddressEditable] = useState(false);
   const [loading, setLoading] = useState(false);
   const [initialData, setInitialData] = useState<ClientFormInputs | null>(null);
@@ -160,7 +158,7 @@ export function EditClients() {
             return acc;
           }
 
-          acc[key as keyof ClientFormInputs] = currentValue;
+          acc[key as keyof ClientFormInputs] = currentValue ?? 'COMPANY';
         }
 
         return acc;

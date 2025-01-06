@@ -158,7 +158,7 @@ export function EditProductAndService() {
       await fetchCategories();
 
       reset({
-        ...reset(),
+        ...productData,
         categoryId: newCategory.id,
       });
 

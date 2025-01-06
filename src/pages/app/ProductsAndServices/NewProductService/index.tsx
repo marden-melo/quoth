@@ -104,7 +104,7 @@ export function NewProductService() {
       await fetchCategories();
 
       reset({
-        ...reset(),
+        ...categories,
         category: newCategory.id,
       });
 
