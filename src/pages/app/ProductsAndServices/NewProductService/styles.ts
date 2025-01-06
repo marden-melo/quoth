@@ -1,4 +1,5 @@
 import styled from 'styled-components';
+import { PencilSimple, Trash } from 'phosphor-react';
 
 export const Container = styled.div`
   display: flex;
@@ -140,4 +141,45 @@ export const CategoryButton = styled.button`
   &:active {
     background-color: ${({ theme }) => theme['blue-200']};
   }
+`;
+
+export const CategoryList = styled.ul`
+  list-style: none;
+  padding: 0;
+  margin: 20px 0;
+  max-height: 200px;
+  overflow-y: auto;
+`;
+
+export const CategoryItem = styled.li`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px;
+  background-color: ${({ theme }) => theme['gray-100']};
+  border: 1px solid ${({ theme }) => theme['gray-300']};
+  border-radius: 4px;
+  margin-bottom: 8px;
+  cursor: pointer;
+
+  span {
+    flex-grow: 1;
+    margin-right: 10px;
+    color: ${({ theme }) => theme['gray-700']};
+  }
+`;
+
+export const EditIcon = styled(PencilSimple).attrs(({ theme }) => ({
+  size: 20,
+  color: theme['blue-500'],
+}))`
+  cursor: pointer;
+  margin-right: 8px;
+`;
+
+export const DeleteIcon = styled(Trash).attrs(({ theme }) => ({
+  size: 20,
+  color: theme['red-500'],
+}))`
+  cursor: pointer;
 `;

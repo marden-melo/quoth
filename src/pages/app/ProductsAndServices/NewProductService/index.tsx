@@ -60,7 +60,6 @@ export function NewProductService() {
   const navigate = useNavigate();
   const theme = useTheme();
 
-  // Função para buscar as categorias
   const fetchCategories = async () => {
     try {
       const response = await api.get('/categories');
@@ -72,7 +71,6 @@ export function NewProductService() {
     }
   };
 
-  // Recarregar categorias quando o componente for montado
   useEffect(() => {
     fetchCategories();
   }, []);
@@ -286,6 +284,25 @@ export function NewProductService() {
               onChange: (e) => setNewCategoryName(e.target.value),
             },
           ]}
+          categories={categories}
+          onEdit={async (id, newName) => {
+            try {
+              await api.put(`/category/${id}`, { name: newName });
+              toast.success('Categoria editada com sucesso!');
+              fetchCategories();
+            } catch {
+              toast.error('Erro ao editar categoria.');
+            }
+          }}
+          onDelete={async (id) => {
+            try {
+              await api.delete(`/category/${id}`);
+              toast.success('Categoria excluída com sucesso!');
+              fetchCategories();
+            } catch {
+              toast.error('Erro ao excluir categoria.');
+            }
+          }}
           onSubmit={handleCategorySubmit}
         />
       </Content>

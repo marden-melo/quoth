@@ -76,7 +76,6 @@ export function EditClients() {
 
         setInitialData(clientData);
 
-        // Initialize form values
         setValue('cnpj', clientData.cnpj || '');
         setValue('companyName', clientData.companyName || '');
         setValue('cpf', clientData.cpf || '');

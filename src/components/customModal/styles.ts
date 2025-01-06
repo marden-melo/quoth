@@ -20,59 +20,38 @@ export const ModalContent = styled.div<{ isOpen: boolean }>`
   border-radius: 12px;
   width: 100%;
   max-width: 500px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-  transition: transform 0.3s ease-in-out;
-  transform: ${({ isOpen }) => (isOpen ? 'scale(1)' : 'scale(0.9)')};
-  opacity: ${({ isOpen }) => (isOpen ? 1 : 0)};
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+`;
+
+export const CategoryList = styled.ul`
+  margin-top: 16px;
+  margin-bottom: 2rem;
+  list-style: none;
+  padding: 0;
+  overflow-y: auto;
+  max-height: 20rem;
+`;
+
+export const CategoryItem = styled.li`
   display: flex;
-  flex-direction: column;
-  gap: 20px;
-`;
-
-// Título do Modal
-export const ModalTitle = styled.h2`
-  font-size: 1.5rem;
-  font-weight: 500;
-  color: ${({ theme }) => theme['gray-800']};
-  margin-bottom: 16px;
-`;
-
-// Botão de fechar do Modal
-export const ModalCloseButton = styled.button`
-  align-self: flex-end;
-  background-color: transparent;
-  border: none;
-  font-size: 1.5rem;
-  cursor: pointer;
-  color: ${({ theme }) => theme['gray-500']};
-  transition: color 0.3s ease;
-
-  &:hover {
-    color: ${({ theme }) => theme['gray-800']};
-  }
-`;
-
-export const ModalButton = styled.button`
-  padding: 12px 24px;
-  font-size: 1rem;
-  font-weight: bold;
-  background-color: ${({ theme }) => theme['blue-500']};
-  color: ${({ theme }) => theme.white};
-  border: none;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+  background-color: ${({ theme }) => theme['gray-200']};
+  padding: 8px;
   border-radius: 8px;
   cursor: pointer;
-  transition: background-color 0.3s ease;
 
-  &:disabled {
-    background-color: ${({ theme }) => theme['gray-400']};
-    cursor: not-allowed;
+  span {
+    flex: 1;
+    font-size: 16px;
   }
+`;
 
-  &:hover {
-    background-color: ${({ theme }) => theme['blue-600']};
-  }
-
-  &:active {
-    background-color: ${({ theme }) => theme['blue-700']};
-  }
+export const EditInput = styled.input`
+  flex: 1;
+  padding: 4px;
+  font-size: 16px;
+  border: 1px solid ${({ theme }) => theme['gray-400']};
+  border-radius: 4px;
 `;

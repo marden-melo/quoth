@@ -20,20 +20,30 @@ import { Sidebar } from '../../Sidebar';
 import { ArrowCircleLeft, Plus } from 'phosphor-react';
 import { ToastContainer, toast } from 'react-toastify';
 import { api } from '@/lib/axios';
-import { Loading } from '@/components/Loading'; // Importe o componente de loading
+import { Loading } from '@/components/Loading';
+import { CustomModal } from '@/components/customModal';
 
 interface ProductServiceInterface {
+  id: string;
   name: string;
   description: string;
   price: number;
-  category: string;
   quantity: number;
-  type: 'PRODUCT' | 'SERVICE';
+  type: string;
+  categoryId?: string; // Corrigido para categoryId
+}
+
+interface Category {
+  id: string;
+  name: string;
 }
 
 export function EditProductAndService() {
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [loading, setLoading] = useState(true); // Defina o estado de carregamento
+  const [loading, setLoading] = useState(true);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [newCategoryName, setNewCategoryName] = useState('');
+  const [categories, setCategories] = useState<Category[]>([]);
   const [productData, setProductData] =
     useState<ProductServiceInterface | null>(null);
   const { id } = useParams<{ id: string }>();
@@ -41,6 +51,7 @@ export function EditProductAndService() {
     control,
     handleSubmit,
     setValue,
+    reset,
     formState: { errors },
   } = useForm<ProductServiceInterface>();
   const navigate = useNavigate();
@@ -57,7 +68,7 @@ export function EditProductAndService() {
         setValue('name', data.data.name);
         setValue('description', data.data.description);
         setValue('price', data.data.price);
-        setValue('category', data.data.category.name);
+        setValue('categoryId', data.data.categoryId); // Ajustado aqui
         setValue('quantity', data.data.quantity);
         setValue('type', data.data.type);
       } catch (error) {
@@ -65,7 +76,7 @@ export function EditProductAndService() {
           position: 'top-right',
         });
       } finally {
-        setLoading(false); // Defina o estado como falso quando os dados forem carregados
+        setLoading(false);
       }
     };
 
@@ -76,14 +87,29 @@ export function EditProductAndService() {
     if (!productData) return;
 
     setIsSubmitting(true);
+
+    const payload: Partial<ProductServiceInterface> = {};
+
+    if (data.name !== productData.name) payload.name = data.name;
+    if (data.description !== productData.description)
+      payload.description = data.description;
+    if (data.price !== productData.price) payload.price = data.price;
+    if (data.categoryId !== productData.categoryId)
+      // Ajustado para categoryId
+      payload.categoryId = data.categoryId;
+    if (data.quantity !== productData.quantity)
+      payload.quantity = data.quantity;
+    if (data.type !== productData.type) payload.type = data.type;
+
     try {
-      const response = await api.put(`/product-or-service/${id}`, data);
+      const response = await api.put(`/product-or-service/${id}`, payload);
+
       if (response.status === 200) {
         toast.success('Produto/Serviço atualizado com sucesso!', {
           position: 'top-right',
         });
         setTimeout(() => {
-          navigate('/see-product-services');
+          navigate('/productsservices');
         }, 1500);
       }
     } catch (error) {
@@ -96,7 +122,55 @@ export function EditProductAndService() {
   };
 
   const handleCancel = () => {
-    navigate('/see-product-services');
+    navigate('/productsservices');
+  };
+
+  const handleAddCategory = () => {
+    setIsModalOpen(true);
+  };
+
+  const fetchCategories = async () => {
+    try {
+      const response = await api.get('/categories');
+      const data = Array.isArray(response.data.data) ? response.data.data : [];
+      setCategories(data);
+    } catch (error) {
+      toast.error('Erro ao carregar categorias.');
+    }
+  };
+
+  useEffect(() => {
+    fetchCategories();
+  }, []);
+
+  const handleCategorySubmit = async () => {
+    try {
+      if (!newCategoryName) {
+        toast.error('O nome da categoria é obrigatório!');
+        return;
+      }
+
+      const payload = { name: newCategoryName };
+      const response = await api.post('/category', payload);
+      const newCategory = response.data;
+
+      toast.success('Categoria cadastrada com sucesso!');
+      await fetchCategories();
+
+      reset({
+        ...reset(),
+        categoryId: newCategory.id,
+      });
+
+      handleCloseModal();
+    } catch (error) {
+      toast.error('Erro ao cadastrar categoria.');
+    }
+  };
+
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+    setNewCategoryName('');
   };
 
   return (
@@ -165,19 +239,29 @@ export function EditProductAndService() {
                 />
                 {errors.price && <span>{errors.price.message}</span>}
               </FormField>
-
               <CategoryWrapper>
                 <FormField>
                   <label htmlFor="category">Categoria</label>
                   <Controller
-                    name="category"
+                    name="categoryId" // Ajustado para categoryId
                     control={control}
                     rules={{ required: 'Categoria é obrigatória' }}
-                    render={({ field }) => <Input {...field} id="category" />}
+                    render={({ field }) => (
+                      <select {...field} id="category">
+                        <option value="">Selecione uma categoria</option>
+                        {categories.map((category) => (
+                          <option key={category.id} value={category.id}>
+                            {category.name}
+                          </option>
+                        ))}
+                      </select>
+                    )}
                   />
-                  {errors.category && <span>{errors.category.message}</span>}
+                  {errors.categoryId && (
+                    <span>{errors.categoryId.message}</span>
+                  )}
                 </FormField>
-                <CategoryButton onClick={() => {}} type="button">
+                <CategoryButton onClick={handleAddCategory} type="button">
                   <Plus size={24} color={theme['green-500']} />
                 </CategoryButton>
               </CategoryWrapper>
@@ -195,7 +279,6 @@ export function EditProductAndService() {
                 {errors.quantity && <span>{errors.quantity.message}</span>}
               </FormField>
 
-              {/* Tipo é somente visual e não editável */}
               <FormField>
                 <label htmlFor="type">Tipo</label>
                 <div>
@@ -222,6 +305,39 @@ export function EditProductAndService() {
             </FormRowBottom>
           </Form>
         )}
+
+        <CustomModal
+          isOpen={isModalOpen}
+          onClose={handleCloseModal}
+          title="Cadastrar Nova Categoria"
+          fields={[
+            {
+              placeholder: 'Nome da Categoria',
+              value: newCategoryName,
+              onChange: (e) => setNewCategoryName(e.target.value),
+            },
+          ]}
+          categories={categories}
+          onEdit={async (id, newName) => {
+            try {
+              await api.put(`/category/${id}`, { name: newName });
+              toast.success('Categoria editada com sucesso!');
+              fetchCategories();
+            } catch {
+              toast.error('Erro ao editar categoria.');
+            }
+          }}
+          onDelete={async (id) => {
+            try {
+              await api.delete(`/category/${id}`);
+              toast.success('Categoria excluída com sucesso!');
+              fetchCategories();
+            } catch {
+              toast.error('Erro ao excluir categoria.');
+            }
+          }}
+          onSubmit={handleCategorySubmit}
+        />
       </Content>
     </Container>
   );

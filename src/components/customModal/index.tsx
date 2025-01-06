@@ -1,7 +1,15 @@
-import React from 'react';
+import { useState, ChangeEventHandler } from 'react';
 import { Button } from '@/components/Button';
 import { Input } from '@/components/Input';
-import { ModalOverlay, ModalContent } from './styles';
+import {
+  ModalOverlay,
+  ModalContent,
+  CategoryList,
+  CategoryItem,
+  EditInput,
+} from './styles';
+import { X } from 'phosphor-react';
+import { useTheme } from 'styled-components';
 
 interface ModalProps {
   isOpen: boolean;
@@ -10,22 +18,48 @@ interface ModalProps {
   fields: {
     placeholder: string;
     value: string;
-    onChange: React.ChangeEventHandler<HTMLInputElement>;
+    onChange: ChangeEventHandler<HTMLInputElement>;
   }[];
+  categories: {
+    id: string;
+    name: string;
+  }[];
+  onEdit: (id: string, newName: string) => void;
+  onDelete: (id: string) => void;
   onSubmit: () => void;
 }
 
-export const CustomModal: React.FC<ModalProps> = ({
+export function CustomModal({
   isOpen,
   onClose,
   title,
   fields,
+  categories,
+  onEdit,
+  onDelete,
   onSubmit,
-}) => {
+}: ModalProps) {
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editValue, setEditValue] = useState('');
+  const theme = useTheme();
+
+  const handleEdit = (id: string, currentName: string) => {
+    setEditingId(id);
+    setEditValue(currentName);
+  };
+
+  const handleSaveEdit = () => {
+    if (editingId) {
+      onEdit(editingId, editValue);
+      setEditingId(null);
+      setEditValue('');
+    }
+  };
+
   return (
     <ModalOverlay isOpen={isOpen} onClick={onClose}>
       <ModalContent isOpen={isOpen} onClick={(e) => e.stopPropagation()}>
-        <h2>{title}</h2>
+        <h2 style={{ marginBottom: '1.5rem' }}>{title}</h2>
         {fields.map((field, index) => (
           <div key={index}>
             <Input
@@ -35,6 +69,33 @@ export const CustomModal: React.FC<ModalProps> = ({
             />
           </div>
         ))}
+        <CategoryList>
+          {categories.map((category) => (
+            <CategoryItem key={category.id}>
+              {editingId === category.id ? (
+                <>
+                  <EditInput
+                    value={editValue}
+                    onChange={(e) => setEditValue(e.target.value)}
+                  />
+                  <Button onClick={handleSaveEdit}>Salvar</Button>
+                </>
+              ) : (
+                <>
+                  <span onClick={() => handleEdit(category.id, category.name)}>
+                    {category.name}
+                  </span>
+                  <X
+                    size={20}
+                    color={theme.red}
+                    onClick={() => onDelete(category.id)}
+                    style={{ cursor: 'pointer', marginLeft: '10px' }}
+                  />
+                </>
+              )}
+            </CategoryItem>
+          ))}
+        </CategoryList>
         <div
           style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px' }}
         >
@@ -43,7 +104,7 @@ export const CustomModal: React.FC<ModalProps> = ({
           </Button>
           <Button
             onClick={onClose}
-            backgroundColor="#f44336"
+            backgroundColor={theme.red}
             style={{ padding: '8px 16px' }}
           >
             Cancelar
@@ -52,4 +113,4 @@ export const CustomModal: React.FC<ModalProps> = ({
       </ModalContent>
     </ModalOverlay>
   );
-};
+}
