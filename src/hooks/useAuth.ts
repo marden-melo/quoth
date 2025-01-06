@@ -1,21 +1,14 @@
 import { api } from '@/lib/axios';
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 
 interface AuthResponse {
   token: string;
 }
 
 export function useAuth() {
-  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
-
-  useEffect(() => {
-    const token = localStorage.getItem('authToken');
-    if (token) {
-      setIsAuthenticated(true);
-    } else {
-      setIsAuthenticated(false);
-    }
-  }, []);
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(() => {
+    return Boolean(localStorage.getItem('authToken'));
+  });
 
   const login = async (email: string, password: string) => {
     try {
@@ -28,6 +21,7 @@ export function useAuth() {
 
       localStorage.setItem('authToken', token);
       setIsAuthenticated(true);
+
       return true;
     } catch (error) {
       console.error('Erro no login', error);

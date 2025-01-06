@@ -148,7 +148,7 @@ export function ProductsAndServices() {
                 <ProductInfo>
                   <h3>{product.name}</h3>
                   <ProductDetails>
-                    <p>
+                    <p style={{ color: theme['green-700'] }}>
                       {new Intl.NumberFormat('pt-BR', {
                         style: 'currency',
                         currency: 'BRL',
@@ -166,12 +166,12 @@ export function ProductsAndServices() {
                 <ActionIcons>
                   <IconButton
                     onClick={() => handleEdit(product.id)}
-                    icon={<Pencil size={24} color={theme['blue-500']} />}
+                    icon={<Pencil size={24} color={theme['cyan-700']} />}
                     text="Editar"
                   />
                   <IconButton
                     onClick={() => openDeleteModal(product.id)}
-                    icon={<Trash size={24} color={theme['red-500']} />}
+                    icon={<Trash size={24} color={theme.red} />}
                     text="Excluir"
                   />
                 </ActionIcons>

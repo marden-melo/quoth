@@ -4,23 +4,25 @@ import { useNavigate, useParams } from 'react-router';
 import { Input } from '@/components/Input';
 import { Button } from '@/components/Button';
 import { useTheme } from 'styled-components';
-import { ToastContainer, toast } from 'react-toastify';
-import { api } from '@/lib/axios';
 import {
   Container,
   Content,
   Title,
   Form,
-  FormRowCustom,
+  FormField,
+  FormRowHalf,
   FormRowBottom,
   ArrowTitleContainer,
   CategoryButton,
+  CategoryWrapper,
 } from './styles';
 import { Sidebar } from '../../Sidebar';
-import { ArrowCircleLeft } from 'phosphor-react';
-import { SectionTitle } from '../../Budget/styles';
+import { ArrowCircleLeft, Plus } from 'phosphor-react';
+import { ToastContainer, toast } from 'react-toastify';
+import { api } from '@/lib/axios';
+import { Loading } from '@/components/Loading'; // Importe o componente de loading
 
-interface ProductServiceFormInputs {
+interface ProductServiceInterface {
   name: string;
   description: string;
   price: number;
@@ -29,83 +31,72 @@ interface ProductServiceFormInputs {
   type: 'PRODUCT' | 'SERVICE';
 }
 
-interface Category {
-  id: string;
-  name: string;
-}
-
 export function EditProductAndService() {
-  const theme = useTheme();
-  const navigate = useNavigate();
-  const { id } = useParams<{ id: string }>();
-  const [categories, setCategories] = useState<Category[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
-
+  const [loading, setLoading] = useState(true); // Defina o estado de carregamento
+  const [productData, setProductData] =
+    useState<ProductServiceInterface | null>(null);
+  const { id } = useParams<{ id: string }>();
   const {
     control,
     handleSubmit,
-    formState: { errors },
     setValue,
-    reset,
-  } = useForm<ProductServiceFormInputs>();
+    formState: { errors },
+  } = useForm<ProductServiceInterface>();
+  const navigate = useNavigate();
+  const theme = useTheme();
 
   useEffect(() => {
-    const fetchCategories = async () => {
-      try {
-        const { data } = await api.get('/categories');
-        setCategories(data.data);
-      } catch (error) {
-        toast.error('Erro ao carregar as categorias.');
-      }
-    };
-
-    const fetchProductServiceData = async () => {
+    const fetchProductData = async () => {
       if (!id) return;
 
       try {
-        const { data } = await api.get(`/product-service/${id}`);
-        const productServiceData = data.data as ProductServiceFormInputs;
+        const { data } = await api.get(`/product-or-service/${id}`);
+        setProductData(data.data);
 
-        setValue('name', productServiceData.name);
-        setValue('description', productServiceData.description);
-        setValue('price', productServiceData.price);
-        setValue('category', productServiceData.category);
-        setValue('quantity', productServiceData.quantity);
-        setValue('type', productServiceData.type);
+        setValue('name', data.data.name);
+        setValue('description', data.data.description);
+        setValue('price', data.data.price);
+        setValue('category', data.data.category.name);
+        setValue('quantity', data.data.quantity);
+        setValue('type', data.data.type);
       } catch (error) {
-        toast.error('Erro ao carregar os dados do produto/serviço.');
+        toast.error('Erro ao carregar os dados do produto/serviço.', {
+          position: 'top-right',
+        });
       } finally {
+        setLoading(false); // Defina o estado como falso quando os dados forem carregados
       }
     };
 
-    fetchCategories();
-    fetchProductServiceData();
+    fetchProductData();
   }, [id, setValue]);
 
-  const onSubmit = async (data: ProductServiceFormInputs) => {
+  const onSubmit = async (data: ProductServiceInterface) => {
+    if (!productData) return;
+
     setIsSubmitting(true);
     try {
-      const response = await api.put(`/product-service/${id}`, data);
+      const response = await api.put(`/product-or-service/${id}`, data);
       if (response.status === 200) {
-        toast.success('Produto/Serviço atualizado com sucesso!');
-        navigate('/see-product-service');
+        toast.success('Produto/Serviço atualizado com sucesso!', {
+          position: 'top-right',
+        });
+        setTimeout(() => {
+          navigate('/see-product-services');
+        }, 1500);
       }
     } catch (error) {
-      toast.error('Erro ao atualizar os dados do produto/serviço.');
+      toast.error('Erro ao atualizar o produto/serviço.', {
+        position: 'top-right',
+      });
     } finally {
       setIsSubmitting(false);
     }
   };
 
   const handleCancel = () => {
-    reset({
-      name: '',
-      description: '',
-      price: 0,
-      category: '',
-      quantity: 0,
-      type: 'PRODUCT',
-    });
+    navigate('/see-product-services');
   };
 
   return (
@@ -127,118 +118,110 @@ export function EditProductAndService() {
           <ArrowCircleLeft
             size={32}
             color={theme['gray-500']}
-            onClick={() => navigate('/see-product-service')}
+            onClick={() => navigate('/productsservices')}
             style={{ cursor: 'pointer', marginRight: '10px' }}
           />
-          <Title>Editar Produto/Serviço</Title>
+          <Title>Editar Produto ou Serviço</Title>
         </ArrowTitleContainer>
-        <Form onSubmit={handleSubmit(onSubmit)}>
-          <SectionTitle>Tipo de Produto/Serviço</SectionTitle>
-          <FormRowCustom>
-            <Controller
-              name="type"
-              control={control}
-              render={({ field }) => (
-                <>
-                  <CategoryButton
-                    active={field.value === 'PRODUCT'}
-                    onClick={() => setValue('type', 'PRODUCT')}
-                  >
-                    Produto
-                  </CategoryButton>
-                  <CategoryButton
-                    active={field.value === 'SERVICE'}
-                    onClick={() => setValue('type', 'SERVICE')}
-                  >
-                    Serviço
-                  </CategoryButton>
-                </>
-              )}
-            />
-          </FormRowCustom>
 
-          <SectionTitle>Informações</SectionTitle>
-          <FormRowCustom>
-            <Controller
-              name="name"
-              control={control}
-              render={({ field }) => (
-                <Input
-                  {...field}
-                  placeholder="Nome"
-                  error={errors.name?.message}
+        {loading ? (
+          <Loading />
+        ) : (
+          <Form onSubmit={handleSubmit(onSubmit)}>
+            <FormRowHalf>
+              <FormField>
+                <label htmlFor="name">Nome</label>
+                <Controller
+                  name="name"
+                  control={control}
+                  rules={{ required: 'Nome é obrigatório' }}
+                  render={({ field }) => <Input {...field} id="name" />}
                 />
-              )}
-            />
-            <Controller
-              name="description"
-              control={control}
-              render={({ field }) => (
-                <Input
-                  {...field}
-                  placeholder="Descrição"
-                  error={errors.description?.message}
-                />
-              )}
-            />
-          </FormRowCustom>
+                {errors.name && <span>{errors.name.message}</span>}
+              </FormField>
 
-          <FormRowCustom>
-            <Controller
-              name="price"
-              control={control}
-              render={({ field }) => (
-                <Input
-                  {...field}
-                  placeholder="Preço"
-                  type="number"
-                  error={errors.price?.message}
+              <FormField>
+                <label htmlFor="description">Descrição</label>
+                <Controller
+                  name="description"
+                  control={control}
+                  rules={{ required: 'Descrição é obrigatória' }}
+                  render={({ field }) => <Input {...field} id="description" />}
                 />
-              )}
-            />
-            <Controller
-              name="quantity"
-              control={control}
-              render={({ field }) => (
-                <Input
-                  {...field}
-                  placeholder="Quantidade"
-                  type="number"
-                  error={errors.quantity?.message}
+                {errors.description && (
+                  <span>{errors.description.message}</span>
+                )}
+              </FormField>
+
+              <FormField>
+                <label htmlFor="price">Preço</label>
+                <Controller
+                  name="price"
+                  control={control}
+                  rules={{ required: 'Preço é obrigatório' }}
+                  render={({ field }) => (
+                    <Input type="number" {...field} id="price" />
+                  )}
                 />
-              )}
-            />
-          </FormRowCustom>
+                {errors.price && <span>{errors.price.message}</span>}
+              </FormField>
 
-          <SectionTitle>Categoria</SectionTitle>
-          <FormRowCustom>
-            <Controller
-              name="category"
-              control={control}
-              render={({ field }) => (
-                <select
-                  {...field}
-                  style={{ padding: '8px', borderRadius: '4px' }}
-                >
-                  {categories.map((category) => (
-                    <option key={category.id} value={category.id}>
-                      {category.name}
-                    </option>
-                  ))}
-                </select>
-              )}
-            />
-          </FormRowCustom>
+              <CategoryWrapper>
+                <FormField>
+                  <label htmlFor="category">Categoria</label>
+                  <Controller
+                    name="category"
+                    control={control}
+                    rules={{ required: 'Categoria é obrigatória' }}
+                    render={({ field }) => <Input {...field} id="category" />}
+                  />
+                  {errors.category && <span>{errors.category.message}</span>}
+                </FormField>
+                <CategoryButton onClick={() => {}} type="button">
+                  <Plus size={24} color={theme['green-500']} />
+                </CategoryButton>
+              </CategoryWrapper>
 
-          <FormRowBottom>
-            <Button type="submit" disabled={isSubmitting}>
-              {isSubmitting ? 'Editando...' : 'Editar'}
-            </Button>
-            <Button type="button" onClick={handleCancel}>
-              Cancelar
-            </Button>
-          </FormRowBottom>
-        </Form>
+              <FormField>
+                <label htmlFor="quantity">Quantidade</label>
+                <Controller
+                  name="quantity"
+                  control={control}
+                  rules={{ required: 'Quantidade é obrigatória' }}
+                  render={({ field }) => (
+                    <Input type="number" {...field} id="quantity" />
+                  )}
+                />
+                {errors.quantity && <span>{errors.quantity.message}</span>}
+              </FormField>
+
+              {/* Tipo é somente visual e não editável */}
+              <FormField>
+                <label htmlFor="type">Tipo</label>
+                <div>
+                  {productData?.type === 'PRODUCT' ? 'Produto' : 'Serviço'}
+                </div>
+              </FormField>
+            </FormRowHalf>
+
+            <FormRowBottom>
+              <Button
+                type="submit"
+                backgroundColor={theme['cyen-700']}
+                disabled={isSubmitting}
+              >
+                {isSubmitting ? 'Atualizando' : 'Atualizar'}
+              </Button>
+              <Button
+                type="button"
+                backgroundColor={theme.red}
+                onClick={handleCancel}
+              >
+                Cancelar
+              </Button>
+            </FormRowBottom>
+          </Form>
+        )}
       </Content>
     </Container>
   );

@@ -22,6 +22,7 @@ export function Configurations() {
     localStorage.removeItem('authToken');
     logout();
     navigate('/login', { replace: true });
+    window.location.reload();
   };
 
   useEffect(() => {

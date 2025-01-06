@@ -186,7 +186,9 @@ export function Clients() {
             <Button
               type="button"
               active={clientType === 'COMPANY'}
-              backgroundColor={theme['cyan-500']}
+              backgroundColor={
+                clientType === 'COMPANY' ? theme['cyan-700'] : theme['gray-400']
+              }
               onClick={() => handleClientTypeChange('COMPANY')}
             >
               Empresa
@@ -194,7 +196,11 @@ export function Clients() {
             <Button
               type="button"
               active={clientType === 'INDIVIDUAL'}
-              backgroundColor={theme['cyan-500']}
+              backgroundColor={
+                clientType === 'INDIVIDUAL'
+                  ? theme['cyan-700']
+                  : theme['gray-400']
+              }
               onClick={() => handleClientTypeChange('INDIVIDUAL')}
             >
               Pessoa Física
@@ -453,14 +459,14 @@ export function Clients() {
           <FormRowBottom>
             <Button
               type="submit"
-              backgroundColor={theme['green-300']}
+              backgroundColor={theme['cyan-700']}
               disabled={loading}
             >
               {loading ? 'Cadastrando' : 'Cadastrar'}
             </Button>
             <Button
               type="button"
-              backgroundColor={theme['red-300']}
+              backgroundColor={theme.red}
               onClick={handleCancel}
             >
               Cancelar

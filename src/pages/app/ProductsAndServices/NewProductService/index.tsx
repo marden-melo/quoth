@@ -21,6 +21,7 @@ import { Sidebar } from '../../Sidebar';
 import { ArrowCircleLeft } from 'phosphor-react';
 import { ToastContainer, toast } from 'react-toastify';
 import { api } from '@/lib/axios';
+import { CustomModal } from '@/components/customModal';
 
 interface ProductServiceFormInputs {
   name: string;
@@ -39,6 +40,8 @@ interface Category {
 export function NewProductService() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [categories, setCategories] = useState<Category[]>([]);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [newCategoryName, setNewCategoryName] = useState('');
   const {
     control,
     handleSubmit,
@@ -57,20 +60,20 @@ export function NewProductService() {
   const navigate = useNavigate();
   const theme = useTheme();
 
-  useEffect(() => {
-    const fetchCategories = async () => {
-      try {
-        const response = await api.get('/categories');
-        console.log('Categorias:', response.data.data);
-        const data = Array.isArray(response.data.data)
-          ? response.data.data
-          : [];
+  // Função para buscar as categorias
+  const fetchCategories = async () => {
+    try {
+      const response = await api.get('/categories');
+      console.log('Categorias:', response.data.data);
+      const data = Array.isArray(response.data.data) ? response.data.data : [];
+      setCategories(data);
+    } catch (error) {
+      toast.error('Erro ao carregar categorias.');
+    }
+  };
 
-        setCategories(data);
-      } catch (error) {
-        toast.error('Erro ao carregar categorias.');
-      }
-    };
+  // Recarregar categorias quando o componente for montado
+  useEffect(() => {
     fetchCategories();
   }, []);
 
@@ -79,7 +82,38 @@ export function NewProductService() {
   };
 
   const handleAddCategory = () => {
-    console.log('Abrir modal ou ação para adicionar nova categoria');
+    setIsModalOpen(true);
+  };
+
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+    setNewCategoryName('');
+  };
+
+  const handleCategorySubmit = async () => {
+    try {
+      if (!newCategoryName) {
+        toast.error('O nome da categoria é obrigatório!');
+        return;
+      }
+
+      const payload = { name: newCategoryName };
+      const response = await api.post('/category', payload);
+      const newCategory = response.data;
+
+      toast.success('Categoria cadastrada com sucesso!');
+
+      await fetchCategories();
+
+      reset({
+        ...reset(),
+        category: newCategory.id,
+      });
+
+      handleCloseModal();
+    } catch (error) {
+      toast.error('Erro ao cadastrar categoria.');
+    }
   };
 
   const onSubmit = async (data: ProductServiceFormInputs) => {
@@ -93,12 +127,13 @@ export function NewProductService() {
         type: data.type,
         description: data.description,
       };
+
       await api.post('/product-or-service', payload);
       toast.success('Produto ou Serviço cadastrado com sucesso!');
-      reset();
+
       setTimeout(() => {
         navigate('/productsservices');
-      }, 3000);
+      }, 1500);
     } catch (error) {
       toast.error('Erro ao cadastrar Produto ou Serviço.');
     } finally {
@@ -225,20 +260,34 @@ export function NewProductService() {
           <FormRowBottom>
             <Button
               type="submit"
-              backgroundColor={theme['green-300']}
+              backgroundColor={theme['cyen-700']}
               disabled={isSubmitting}
             >
-              {isSubmitting ? 'Cadastrando...' : 'Cadastrar'}
+              {isSubmitting ? 'Cadastrando' : 'Cadastrar'}
             </Button>
             <Button
               type="button"
-              backgroundColor={theme['red-300']}
+              backgroundColor={theme.red}
               onClick={handleCancel}
             >
               Cancelar
             </Button>
           </FormRowBottom>
         </Form>
+
+        <CustomModal
+          isOpen={isModalOpen}
+          onClose={handleCloseModal}
+          title="Cadastrar Nova Categoria"
+          fields={[
+            {
+              placeholder: 'Nome da Categoria',
+              value: newCategoryName,
+              onChange: (e) => setNewCategoryName(e.target.value),
+            },
+          ]}
+          onSubmit={handleCategorySubmit}
+        />
       </Content>
     </Container>
   );

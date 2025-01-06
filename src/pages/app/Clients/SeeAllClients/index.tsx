@@ -27,6 +27,7 @@ import { ModalConfirm } from '@/components/modalConfirm';
 import { maskCnpj } from '@/utils/masks/maskCNPJ';
 import { maskPhone } from '@/utils/masks/maskPhone';
 import { maskCpf } from '@/utils/masks/maskCPF';
+import { maskCep } from '@/utils/masks/maskCep';
 
 interface Client {
   id: string;
@@ -212,7 +213,7 @@ export function SeeAllClients() {
                       <ClientText>
                         <TitleItems>Endereço: </TitleItems> {client.street},{' '}
                         {client.number}, {client.district}, {client.city} -{' '}
-                        {client.state}, {client.cep}
+                        {client.state}, {maskCep(client.cep)}
                       </ClientText>
                       <ClientText>
                         <TitleItems>Responsável: </TitleItems>{' '}
@@ -224,12 +225,12 @@ export function SeeAllClients() {
                 <Actions>
                   <IconButton
                     onClick={() => handleEditClient(client.id)}
-                    icon={<Pencil size={24} color={theme['blue-500']} />}
+                    icon={<Pencil size={24} color={theme['cyan-700']} />}
                     text="Editar"
                   />
                   <IconButton
                     onClick={() => openDeleteModal(client.id)}
-                    icon={<Trash size={24} color={theme['red-500']} />}
+                    icon={<Trash size={24} color={theme.red} />}
                     text="Excluir"
                   />
                   <IconButton
