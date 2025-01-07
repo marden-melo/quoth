@@ -78,6 +78,14 @@ export function Clients() {
   const onSubmit = async (data: ClientFormInputs) => {
     const clientData = { ...data, clientType };
 
+    if (clientData.fullName) {
+      clientData.fullName = clientData.fullName.toUpperCase();
+    }
+
+    if (clientData.companyName) {
+      clientData.companyName = clientData.companyName.toUpperCase();
+    }
+
     if (clientType === 'COMPANY') {
       if (!clientData.cnpj || !clientData.fullName) {
         toast.error('CNPJ e Nome da Empresa são obrigatórios para empresas.', {

@@ -27,6 +27,12 @@ export const Title = styled.h1`
   margin-bottom: 24px;
 `;
 
+export const TitleValidit = styled.span`
+  font-size: 18px;
+  font-weight: 500;
+  color: ${({ theme }) => theme.red};
+`;
+
 export const Form = styled.form`
   display: flex;
   flex-direction: column;
@@ -46,7 +52,7 @@ export const SectionTitle = styled.h2`
 
 export const FormRow = styled.div`
   display: grid;
-  grid-template-columns: 3fr 1fr;
+  grid-template-columns: 1fr 1fr;
   gap: 16px;
 
   @media (max-width: 768px) {
@@ -56,7 +62,18 @@ export const FormRow = styled.div`
 
 export const FormRowHalf = styled.div`
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: 1fr 2fr;
+  gap: 16px;
+  margin-top: 3rem;
+
+  @media (max-width: 768px) {
+    grid-template-columns: 1fr;
+  }
+`;
+
+export const FormRowThird = styled.div`
+  display: grid;
+  grid-template-columns: 3fr 1fr;
   gap: 16px;
 
   @media (max-width: 768px) {
@@ -129,4 +146,49 @@ export const SidebarContainer = styled.aside`
   display: flex;
   flex-direction: column;
   gap: 16px;
+`;
+
+export const Table = styled.table`
+  width: 100%;
+  border-collapse: collapse;
+  margin: 10px 0;
+  padding: 10px;
+
+  th,
+  td {
+    padding: 12px;
+    text-align: left;
+    border: 1px solid #ddd;
+  }
+
+  th {
+    background-color: #f4f4f4;
+  }
+`;
+
+export const BonusSection = styled.div`
+  background-color: #f7f7f7;
+  padding: 1rem;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  margin-top: 1rem;
+`;
+
+export const BonusDetailsRow = styled.div`
+  display: flex;
+  justify-content: space-between;
+  padding: 10px;
+  border-bottom: 1px solid #ddd;
+  font-weight: bold;
+`;
+
+export const ValueText = styled.strong`
+  color: #333;
+  font-size: 1.2rem;
+`;
+
+export const InstallmentsInfo = styled.p`
+  color: #888;
+  font-size: 1rem;
+  margin-top: 5px;
 `;
