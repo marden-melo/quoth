@@ -168,6 +168,15 @@ export function Budget() {
     setIsProductServiceOpen(!isProductServiceOpen);
   };
 
+  const calculateTotalBonusPercentage = () => {
+    return selectedBonuses.reduce((total, bonus) => {
+      if (bonus.type === 'percentage') {
+        return total + bonus.percentage;
+      }
+      return total;
+    }, 0);
+  };
+
   const calculateFinalValues = () => {
     const totalProducts = selectedItems.reduce(
       (sum, item) => sum + item.price * item.quantity,
@@ -179,13 +188,11 @@ export function Budget() {
     const fees = watch('fees') || 0;
     const installments = watch('installments') || 0;
 
-    // Aplicar desconto e acréscimos
     const totalWithDiscountAndSurcharge =
       totalProducts -
       (totalProducts * discount) / 100 +
       (totalProducts * surcharge) / 100;
 
-    // Aplicar bônus
     const totalWithBonuses = selectedBonuses.reduce((total, bonus) => {
       if (bonus.type === 'percentage') {
         return total - (total * bonus.percentage) / 100;
@@ -194,7 +201,6 @@ export function Budget() {
       }
     }, totalWithDiscountAndSurcharge);
 
-    // Aplicar taxas
     const totalWithFees =
       fees > 0
         ? totalWithBonuses + (totalWithBonuses * fees) / 100
@@ -324,20 +330,28 @@ export function Budget() {
     }
   };
 
-  const calculateBonusTotal = (updatedBonuses: IBonus[]) => {
-    return updatedBonuses.reduce((total, bonus) => {
+  const calculateTotalBonus = (bonuses: IBonus[]): number => {
+    return bonuses.reduce((total, bonus) => {
       if (bonus.type === 'percentage') {
-        return total + (bonus.value / 100) * total;
-      } else {
-        return total + bonus.value;
+        total += (bonus.percentage / 100) * totalValues.totalProducts;
+      } else if (bonus.type === 'value') {
+        total += bonus.value;
       }
+      return total;
     }, 0);
   };
 
-  const totalBonus = calculateBonusTotal(selectedBonuses);
+  const calculateTotalWithBonuses = () => {
+    const totalProducts = selectedItems.reduce(
+      (sum, item) => sum + item.price * item.quantity,
+      0
+    );
 
-  const formattedTotalBonus =
-    typeof totalBonus === 'number' ? totalBonus.toFixed(2) : '0.00';
+    const totalBonus = calculateTotalBonus(selectedBonuses);
+
+    const totalWithBonuses = totalProducts - totalBonus;
+    return totalWithBonuses;
+  };
 
   const onSubmit = (data: BudgetFormData) => {
     toast.success('Orçamento salvo com sucesso!');
@@ -370,6 +384,11 @@ export function Budget() {
     installments && installments > 0 ? totalWithFees / installments : 0;
 
   const totalValues = calculateFinalValues();
+
+  const totalOriginal = totalValues.totalProducts;
+  const totalWithBonuses = totalValues.totalWithBonuses;
+
+  const bonusValue = totalOriginal - totalWithBonuses;
 
   return (
     <Container>
@@ -697,7 +716,12 @@ export function Budget() {
           <FormRowCustom>
             <BonusSection>
               <ValueText>
-                Total de Bônus: {formatCurrency(totalValues.totalWithBonuses)}
+                Total de Bônus: {calculateTotalBonusPercentage()}%
+              </ValueText>
+              <ValueText
+                style={{ color: 'red', marginLeft: '10px', fontSize: '.8rem' }}
+              >
+                - {formatCurrency(bonusValue)}
               </ValueText>
             </BonusSection>
           </FormRowCustom>
