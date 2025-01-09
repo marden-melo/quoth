@@ -206,7 +206,6 @@ export function Budget() {
         ? totalWithBonuses + (totalWithBonuses * fees) / 100
         : totalWithBonuses;
 
-    // Divisão em parcelas
     const installmentValue =
       installments > 0 ? totalWithFees / installments : totalWithFees;
 
@@ -239,20 +238,6 @@ export function Budget() {
       updateTotalValues();
       return updatedBonuses;
     });
-  };
-
-  const applyBonus = (totalValue: number): number => {
-    let valueWithBonus = totalValue;
-
-    selectedBonuses.forEach((bonus) => {
-      if (bonus.type === 'percentage') {
-        valueWithBonus -= valueWithBonus * (bonus.percentage / 100);
-      } else if (bonus.type === 'value') {
-        valueWithBonus -= bonus.value;
-      }
-    });
-
-    return valueWithBonus;
   };
 
   const addProductService = (service: IProductServices, quantity: number) => {
@@ -330,29 +315,6 @@ export function Budget() {
     }
   };
 
-  const calculateTotalBonus = (bonuses: IBonus[]): number => {
-    return bonuses.reduce((total, bonus) => {
-      if (bonus.type === 'percentage') {
-        total += (bonus.percentage / 100) * totalValues.totalProducts;
-      } else if (bonus.type === 'value') {
-        total += bonus.value;
-      }
-      return total;
-    }, 0);
-  };
-
-  const calculateTotalWithBonuses = () => {
-    const totalProducts = selectedItems.reduce(
-      (sum, item) => sum + item.price * item.quantity,
-      0
-    );
-
-    const totalBonus = calculateTotalBonus(selectedBonuses);
-
-    const totalWithBonuses = totalProducts - totalBonus;
-    return totalWithBonuses;
-  };
-
   const onSubmit = (data: BudgetFormData) => {
     toast.success('Orçamento salvo com sucesso!');
     reset();
@@ -363,25 +325,7 @@ export function Budget() {
     toast.info('Edição de orçamento cancelada.');
   };
 
-  const value = watch('value');
-  const discount = watch('discount');
-  const surcharge = watch('surcharge');
-  const fees = watch('fees');
-  const installments = watch('installments');
-
   const paymentMethod = watch('paymentMethod');
-
-  const finalValue = value
-    ? applyBonus(value) -
-      (value * (discount || 0)) / 100 +
-      (value * (surcharge || 0)) / 100
-    : 0;
-
-  const totalWithFees =
-    fees && fees > 0 ? finalValue + (finalValue * fees) / 100 : finalValue;
-
-  const installmentValue =
-    installments && installments > 0 ? totalWithFees / installments : 0;
 
   const totalValues = calculateFinalValues();
 
