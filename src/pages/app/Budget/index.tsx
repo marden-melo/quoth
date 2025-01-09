@@ -56,6 +56,10 @@ interface BudgetFormData {
   bonusPercents: number;
   items: string[];
   selectedBonuses: string[];
+  totalProducts: string;
+  totalWithBonuses: string;
+  totalWithFees: string;
+  installmentValue: string;
 }
 
 interface IClient {
@@ -68,8 +72,12 @@ interface IProductServices {
   name: string;
   price: number;
   quantity: number;
+  discount?: number;
+  surcharge?: number;
+  fees?: number;
+  paymentMethod?: string;
+  installments?: number;
 }
-
 interface IBonus {
   id: string;
   description: string;
@@ -83,16 +91,15 @@ export function Budget() {
     useForm<BudgetFormData>();
   const [clients, setClients] = useState<IClient[]>([]);
   const [bonuses, setBonuses] = useState<IBonus[]>([]);
-  const [selectedBonus, setSelectedBonus] = useState(0);
   const [selectedBonuses, setSelectedBonuses] = useState<IBonus[]>([]);
   const [isBonusOpen, setIsBonusOpen] = useState(false);
   const [isProductServiceOpen, setIsProductServiceOpen] = useState(false);
-
   const [productsServices, setProductsServices] = useState<IProductServices[]>(
     []
   );
   const [selectedService, setSelectedService] =
     useState<IProductServices | null>(null);
+  const [selectedItems, setSelectedItems] = useState<IProductServices[]>([]);
 
   const theme = useTheme();
 
@@ -128,14 +135,14 @@ export function Budget() {
         const validBonuses = response.data.data.filter(
           (bonus: IBonus) => bonus.id && bonus.description
         );
+
         const formattedBonuses = validBonuses.map((bonus: IBonus) => ({
           ...bonus,
-          value:
-            bonus.type === 'percentage'
-              ? formatPercentage(bonus.value)
-              : formatCurrency(bonus.value),
+          type: bonus.percentage ? 'percentage' : 'value',
+          value: bonus.value,
+          percentage: bonus.percentage || 0,
         }));
-        console.log('BONUS:', formattedBonuses);
+
         setBonuses(formattedBonuses);
       } catch (error) {
         toast.error('Erro ao carregar bônus');
@@ -147,14 +154,10 @@ export function Budget() {
   useEffect(() => {
     const today = format(new Date(), 'yyyy-MM-dd', { locale: ptBR });
     setValue('date', today);
-  }, [setValue]);
 
-  useEffect(() => {
-    const today = new Date();
-    const validityDate = new Date(today);
-    validityDate.setDate(today.getDate() + 7);
-    const formattedDate = format(validityDate, 'yyyy-MM-dd', { locale: ptBR });
-    setValue('validity', formattedDate);
+    const validityDate = new Date();
+    validityDate.setDate(validityDate.getDate() + 7);
+    setValue('validity', format(validityDate, 'yyyy-MM-dd', { locale: ptBR }));
   }, [setValue]);
 
   const toggleBonusSection = () => {
@@ -165,16 +168,60 @@ export function Budget() {
     setIsProductServiceOpen(!isProductServiceOpen);
   };
 
-  const updateTotalValue = (updatedBonuses: IBonus[]) => {
-    const newBonusTotal = calculateBonusTotal(updatedBonuses);
-    setSelectedBonus(newBonusTotal);
+  const calculateFinalValues = () => {
+    const totalProducts = selectedItems.reduce(
+      (sum, item) => sum + item.price * item.quantity,
+      0
+    );
+
+    const discount = watch('discount') || 0;
+    const surcharge = watch('surcharge') || 0;
+    const fees = watch('fees') || 0;
+    const installments = watch('installments') || 0;
+
+    // Aplicar desconto e acréscimos
+    const totalWithDiscountAndSurcharge =
+      totalProducts -
+      (totalProducts * discount) / 100 +
+      (totalProducts * surcharge) / 100;
+
+    // Aplicar bônus
+    const totalWithBonuses = selectedBonuses.reduce((total, bonus) => {
+      if (bonus.type === 'percentage') {
+        return total - (total * bonus.percentage) / 100;
+      } else {
+        return total - bonus.value;
+      }
+    }, totalWithDiscountAndSurcharge);
+
+    // Aplicar taxas
+    const totalWithFees =
+      fees > 0
+        ? totalWithBonuses + (totalWithBonuses * fees) / 100
+        : totalWithBonuses;
+
+    // Divisão em parcelas
+    const installmentValue =
+      installments > 0 ? totalWithFees / installments : totalWithFees;
+
+    return { totalProducts, totalWithBonuses, totalWithFees, installmentValue };
+  };
+
+  const updateTotalValues = () => {
+    const { totalProducts, totalWithBonuses, totalWithFees, installmentValue } =
+      calculateFinalValues();
+
+    setValue('totalProducts', totalProducts.toFixed(2));
+    setValue('totalWithBonuses', totalWithBonuses.toFixed(2));
+    setValue('totalWithFees', totalWithFees.toFixed(2));
+    setValue('installmentValue', installmentValue.toFixed(2));
   };
 
   const addBonus = (bonus: IBonus) => {
     if (bonus && bonus.id && !selectedBonuses.find((b) => b.id === bonus.id)) {
       setSelectedBonuses((prev) => {
         const updatedBonuses = [...prev, bonus];
-        updateTotalValue(updatedBonuses);
+        updateTotalValues();
         return updatedBonuses;
       });
     }
@@ -183,23 +230,83 @@ export function Budget() {
   const removeBonus = (bonusId: string) => {
     setSelectedBonuses((prev) => {
       const updatedBonuses = prev.filter((bonus) => bonus.id !== bonusId);
-      updateTotalValue(updatedBonuses);
+      updateTotalValues();
       return updatedBonuses;
     });
   };
 
-  const applyBonus = (totalValue: number) => {
+  const applyBonus = (totalValue: number): number => {
     let valueWithBonus = totalValue;
 
     selectedBonuses.forEach((bonus) => {
       if (bonus.type === 'percentage') {
-        valueWithBonus -= (totalValue * bonus.value) / 100;
+        valueWithBonus -= valueWithBonus * (bonus.percentage / 100);
       } else if (bonus.type === 'value') {
         valueWithBonus -= bonus.value;
       }
     });
 
     return valueWithBonus;
+  };
+
+  const addProductService = (service: IProductServices, quantity: number) => {
+    if (service && quantity > 0) {
+      const existingItemIndex = selectedItems.findIndex(
+        (item) => item.id === service.id
+      );
+
+      const discount = watch('discount') || 0;
+      const surcharge = watch('surcharge') || 0;
+      const paymentMethod = watch('paymentMethod') || 'N/A';
+      const installments = watch('installments') || 0;
+      const fees = watch('fees') || 0;
+
+      if (existingItemIndex > -1) {
+        setSelectedItems((prev) => {
+          const updatedItems = prev.map((item, index) =>
+            index === existingItemIndex
+              ? {
+                  ...item,
+                  quantity: item.quantity + quantity,
+                  totalValue: item.price * (item.quantity + quantity),
+                  discount,
+                  surcharge,
+                  paymentMethod,
+                  installments,
+                  fees,
+                }
+              : item
+          );
+          return updatedItems;
+        });
+      } else {
+        const newItem = {
+          ...service,
+          quantity,
+          totalValue: service.price * quantity,
+          discount,
+          surcharge,
+          paymentMethod,
+          installments,
+          fees,
+        };
+        setSelectedItems((prev) => [...prev, newItem]);
+      }
+
+      setSelectedService(null);
+      setValue('quantity', 1);
+      setValue('service', '');
+      setValue('value', '');
+      setValue('discount', '');
+      setValue('surcharge', '');
+      setValue('paymentMethod', '');
+      setValue('installments', '');
+      setValue('fees', '');
+    }
+  };
+
+  const removeProductService = (serviceId: string) => {
+    setSelectedItems((prev) => prev.filter((item) => item.id !== serviceId));
   };
 
   const handleServiceChange = (serviceId: string) => {
@@ -228,11 +335,11 @@ export function Budget() {
   };
 
   const totalBonus = calculateBonusTotal(selectedBonuses);
+
   const formattedTotalBonus =
     typeof totalBonus === 'number' ? totalBonus.toFixed(2) : '0.00';
 
   const onSubmit = (data: BudgetFormData) => {
-    console.log('Formulário Enviado:', data);
     toast.success('Orçamento salvo com sucesso!');
     reset();
   };
@@ -261,6 +368,8 @@ export function Budget() {
 
   const installmentValue =
     installments && installments > 0 ? totalWithFees / installments : 0;
+
+  const totalValues = calculateFinalValues();
 
   return (
     <Container>
@@ -346,6 +455,7 @@ export function Budget() {
                 <Controller
                   name="quantity"
                   control={control}
+                  defaultValue={1}
                   render={({ field }) => (
                     <Input
                       {...field}
@@ -353,9 +463,11 @@ export function Budget() {
                       type="number"
                       min="1"
                       required
-                      onChange={(e: any) =>
-                        handleQuantityChange(Number(e.target.value))
-                      }
+                      onChange={(e: any) => {
+                        const value = Number(e.target.value);
+                        field.onChange(value);
+                        handleQuantityChange(value);
+                      }}
                     />
                   )}
                 />
@@ -451,6 +563,61 @@ export function Budget() {
                   />
                 </FormRow>
               )}
+              <FormRow>
+                <Button
+                  type="button"
+                  onClick={() => {
+                    const quantity = watch('quantity');
+                    if (selectedService && quantity > 0) {
+                      addProductService(selectedService, quantity);
+                      setSelectedService(null);
+                      setValue('quantity', 1);
+                    }
+                  }}
+                >
+                  Adicionar Item
+                </Button>
+              </FormRow>
+              <Table>
+                <thead>
+                  <tr>
+                    <th>Produto / Serviço</th>
+                    <th>Quantidade</th>
+                    <th>Valor Unit.</th>
+                    <th>Valor Total</th>
+                    <th>Desconto</th>
+                    <th>Acréscimo</th>
+                    <th>Pagamento</th>
+                    <th>Parcelas</th>
+                    <th>Juros (%)</th>
+                    <th>Remover</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {selectedItems.map((item) => (
+                    <tr key={item.id}>
+                      <td>{item.name}</td>
+                      <td>{item.quantity}</td>
+                      <td>{formatCurrency(item.price)}</td>
+                      <td>{formatCurrency(item.price * item.quantity)}</td>
+                      <td>{item.discount || '0'}%</td>
+                      <td>{item.surcharge || '0'}%</td>
+                      <td>{item.paymentMethod || 'N/A'}</td>
+                      <td>{item.installments || '-'}</td>
+                      <td>{item.fees || '-'}</td>
+
+                      <td>
+                        <Button
+                          type="button"
+                          onClick={() => removeProductService(item.id)}
+                        >
+                          Remover
+                        </Button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </Table>
             </>
           )}
 
@@ -509,8 +676,8 @@ export function Budget() {
                       </td>
                       <td>
                         {bonus.type === 'percentage'
-                          ? `${bonus.value}%`
-                          : ` ${bonus.percentage}%`}
+                          ? `${bonus.percentage}%`
+                          : ` ${bonus.value}%`}
                       </td>
                       <td>
                         <Button
@@ -529,32 +696,38 @@ export function Budget() {
 
           <FormRowCustom>
             <BonusSection>
-              <ValueText>Total de Bônus: R$ {formattedTotalBonus}</ValueText>
+              <ValueText>
+                Total de Bônus: {formatCurrency(totalValues.totalWithBonuses)}
+              </ValueText>
             </BonusSection>
           </FormRowCustom>
 
           <FormRowCustom>
             <BonusSection>
               <ValueText>
-                Valor Final (com Bônus): R$ {totalWithFees.toFixed(2)}
+                Valor Final (com Bônus):{' '}
+                {formatCurrency(totalValues.totalWithFees)}
               </ValueText>
             </BonusSection>
           </FormRowCustom>
 
-          {installments > 0 && (
-            <>
-              <FormRow>
-                <strong>Parcelas: {installments}</strong>
+          {watch('installments') > 0 && (
+            <FormRowCustom>
+              <BonusSection>
+                <strong>Parcelas: {watch('installments')}</strong>
                 <InstallmentsInfo>
-                  Valor das Parcelas: R$ {installmentValue.toFixed(2)}
+                  Valor das Parcelas:{' '}
+                  {formatCurrency(totalValues.installmentValue)}
                 </InstallmentsInfo>
-              </FormRow>
-            </>
+              </BonusSection>
+            </FormRowCustom>
           )}
 
           <FormRowCustom>
             <BonusSection>
-              <ValueText>Valor Final: R$ {totalWithFees.toFixed(2)}</ValueText>
+              <ValueText>
+                Valor Final: {formatCurrency(totalValues.totalWithFees)}
+              </ValueText>
             </BonusSection>
           </FormRowCustom>
 
