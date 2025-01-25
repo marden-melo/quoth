@@ -13,6 +13,13 @@ export const Content = styled.div`
   overflow-y: auto;
 `;
 
+export const Title = styled.h1`
+  font-size: 24px;
+  font-weight: 300;
+  color: ${({ theme }) => theme['gray-900']};
+  margin-bottom: 3rem;
+`;
+
 export const AvatarWrapper = styled.div`
   background-color: #f0f0f0;
   padding: 5px;

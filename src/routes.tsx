@@ -15,7 +15,7 @@ import { SeeAllClients } from './pages/app/Clients/SeeAllClients';
 import { EditClients } from './pages/app/Clients/EditClients';
 import { EditProductAndService } from './pages/app/ProductsAndServices/EditProductService';
 
-import { useAuth } from './hooks/useAuth'; // Assumindo que o hook esteja em 'hooks'
+import { useAuth } from './hooks/useAuth';
 
 export const RoutesComponent = () => {
   const { isAuthenticated } = useAuth();

@@ -1,4 +1,10 @@
+import { ReactNode } from 'react';
 import styled from 'styled-components';
+
+interface IconButtonProps {
+  isOpen: boolean;
+  children: ReactNode;
+}
 
 export const Container = styled.div`
   display: flex;
@@ -163,15 +169,8 @@ export const Table = styled.table`
 
   th {
     background-color: #f4f4f4;
+    font-size: 0.9rem;
   }
-`;
-
-export const BonusSection = styled.div`
-  background-color: #f7f7f7;
-  padding: 1rem;
-  border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  margin-top: 1rem;
 `;
 
 export const BonusDetailsRow = styled.div`
@@ -191,4 +190,127 @@ export const InstallmentsInfo = styled.p`
   color: #888;
   font-size: 1rem;
   margin-top: 5px;
+`;
+
+export const ActionsContainer = styled.div`
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  justify-content: center;
+`;
+
+export const ActionButton = styled.button`
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 6px;
+  transition: all 0.3s ease;
+
+  &:hover {
+    opacity: 0.8;
+  }
+
+  svg {
+    width: 20px;
+    height: 20px;
+  }
+`;
+
+export const HeaderContainer = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+`;
+
+export const IconButton = styled.button<IconButtonProps>`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 8px;
+  background-color: ${({ isOpen, theme }) =>
+    isOpen ? theme.red : theme['cyan-700']};
+  border: none;
+  cursor: pointer;
+  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+
+  &:hover {
+    opacity: 0.8;
+  }
+`;
+
+export const CalculatedValuesSection = styled.div`
+  background-color: #ffffff;
+  padding: 2rem;
+  margin-top: 2rem;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  border: 1px solid #e0e0e0;
+
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+`;
+
+export const BonusSectionWrapper = styled.div`
+  background-color: #f9fafc;
+  padding: 1.5rem;
+  border-radius: 12px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+  border: 1px solid #dfe3e8;
+
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+`;
+
+export const PaymentMethodBox = styled.li`
+  background-color: #f9f9f9;
+  padding: 1.5rem;
+  border-radius: 12px;
+  border: 1px solid #e0e0e0;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+
+  & div {
+    display: flex;
+    gap: 0.5rem;
+    font-size: 1rem;
+  }
+
+  & span:first-child {
+    font-weight: bold;
+    color: #333;
+  }
+
+  & span:last-child {
+    color: #555;
+    font-size: 0.9rem;
+  }
+`;
+
+export const StyledTextarea = styled.textarea`
+  width: 100%;
+  border: 1px solid ${({ theme }) => theme['gray-300']};
+  border-radius: 8px;
+  padding: 12px;
+  font-size: 14px;
+  font-family: 'Arial', sans-serif;
+  background-color: ${({ theme }) => theme['gray-50']};
+  color: ${({ theme }) => theme['gray-700']};
+  resize: none;
+  outline: none;
+
+  &:focus {
+    border-color: ${({ theme }) => theme['blue-dark']};
+    box-shadow: 0 0 4px ${({ theme }) => theme['blue-light']};
+  }
+
+  &::placeholder {
+    color: ${({ theme }) => theme['gray-500']};
+  }
 `;
