@@ -14,7 +14,6 @@ import {
   UserName,
   UserEmail,
   AvatarWrapper,
-  Title,
 } from './styles';
 import { useNavigate } from 'react-router';
 import { Chart } from 'react-google-charts';

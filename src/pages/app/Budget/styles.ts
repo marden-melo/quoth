@@ -314,3 +314,26 @@ export const StyledTextarea = styled.textarea`
     color: ${({ theme }) => theme['gray-500']};
   }
 `;
+
+// Estilo para tabela de anexos
+export const AttachmentTable = styled(Table)`
+  margin-top: 20px;
+  th,
+  td {
+    text-align: left;
+    padding: 10px;
+    border-bottom: 1px solid #e0e0e0;
+  }
+`;
+
+// Estilo para campos personalizados
+export const CustomFieldWrapper = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
+
+  input {
+    flex: 1;
+  }
+`;

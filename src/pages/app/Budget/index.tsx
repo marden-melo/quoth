@@ -1,5 +1,6 @@
 import { Sidebar } from '../Sidebar';
 import { useForm, Controller } from 'react-hook-form';
+
 import {
   Container,
   Content,
@@ -21,13 +22,14 @@ import {
   BonusSectionWrapper,
   PaymentMethodBox,
   StyledTextarea,
+  AttachmentTable,
 } from './styles';
 import { Input } from '@/components/Input';
 import { Button } from '@/components/Button';
 import { Select } from '@/components/Select';
 import { TextArea } from '@/components/TextArea';
 import { toast } from 'react-toastify';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { useTheme } from 'styled-components';
@@ -41,6 +43,22 @@ import {
 } from '@/utils/requests/fetchProductServices';
 import { BudgetFormData } from './DTO/budgetFormDataDTO';
 import { PaymentMethod, paymentMethodLabels } from './DTO/paymentMethodDTO';
+import { api } from '@/lib/axios';
+
+interface User {
+  email: string;
+  id: string;
+  isActive: boolean;
+  name: string;
+  planId: string | null;
+  roleId: string;
+  testStartDate: string | null;
+  avatar: string | null;
+}
+
+interface UserData {
+  user: User;
+}
 
 export function Budget() {
   const { handleSubmit, control, reset, watch, setValue, getValues } =
@@ -64,12 +82,31 @@ export function Budget() {
   const [selectedPaymentMethods, setSelectedPaymentMethods] = useState<
     PaymentMethod[]
   >([]);
+  const [attachments, setAttachments] = useState<File[]>([]);
+
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const theme = useTheme();
 
   const { fetchBonuses } = useBonuses();
   const { fetchClients } = useClients();
   const { fetchProductsServices } = useProductsServices();
+
+  const [userData, setUserData] = useState<UserData | null>(null);
+
+  useEffect(() => {
+    const fetchUserData = async () => {
+      try {
+        const response = await api.get('/me');
+        const data: UserData = response.data;
+        setUserData(data);
+      } catch (error) {
+        console.error('Erro ao buscar os dados do usuário', error);
+      }
+    };
+
+    fetchUserData();
+  }, []);
 
   useEffect(() => {
     const loadData = async () => {
@@ -125,6 +162,16 @@ export function Budget() {
       }
       return total;
     }, 0);
+  };
+
+  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files ? Array.from(e.target.files) : [];
+    setAttachments((prev) => [...prev, ...files]);
+    e.target.value = '';
+  };
+
+  const removeAttachment = (index: any) => {
+    setAttachments((prev) => prev.filter((_, i) => i !== index));
   };
 
   const calculateFinalValues = useCallback(() => {
@@ -191,12 +238,12 @@ export function Budget() {
       ) {
         setSelectedBonuses((prev) => {
           const updatedBonuses = [...prev, bonus];
-          updateTotalValues(); // Chama a função memorizada
+          updateTotalValues();
           return updatedBonuses;
         });
       }
     },
-    [selectedBonuses, updateTotalValues] // Dependências: depende de selectedBonuses e updateTotalValues
+    [selectedBonuses, updateTotalValues]
   );
 
   const removeBonus = useCallback(
@@ -312,9 +359,97 @@ export function Budget() {
     }
   };
 
-  const onSubmit = (data: BudgetFormData) => {
-    toast.success('Orçamento salvo com sucesso!');
-    reset();
+  const onSubmit = async (data: BudgetFormData) => {
+    console.log('Valores do formulário:', data);
+    console.log('Método de pagamento selecionado:', data.paymentMethod);
+    console.log('Usuário logado:', userData);
+
+    // Validar se um cliente foi selecionado
+    if (!data.client) {
+      toast.error('Por favor, selecione um cliente.');
+      return;
+    }
+
+    // Validar se pelo menos um item foi adicionado
+    if (selectedItems.length === 0) {
+      toast.error('Por favor, adicione ao menos um produto ou serviço.');
+      return;
+    }
+
+    // Validar se um método de pagamento foi selecionado
+    if (selectedPaymentMethods.length === 0) {
+      toast.error('Por favor, selecione um método de pagamento.');
+      return;
+    }
+
+    // Verificar se os anexos foram corretamente mapeados
+    const documentsPayload = attachments.map((file) => ({
+      fileName: file.name,
+      fileType: file.type,
+      filePath: `/uploads/${file.name}`,
+    }));
+
+    const payload = {
+      budgetNumber: data.budgetNumber,
+      title: 'Orçamento - ' + data.budgetNumber,
+      description: data.description || 'Detalhes do orçamento',
+      status: 'PENDING',
+      discountPercent: data.discount || 0,
+      discountValue:
+        (data.discount || 0) * (parseFloat(data.totalProducts) / 100),
+      subTotal: parseFloat(data.totalProducts),
+      total: parseFloat(data.totalWithFees),
+      finalValueWithInstallments: parseFloat(
+        String(data.finalValueWithInstallments || 0)
+      ),
+      bonusValue: parseFloat(String(data.bonusValue || 0)),
+      userId: userData?.user.id,
+      clientId: data.client,
+      paymentType: selectedPaymentMethods[0]?.paymentMethod || 'CASH',
+      installments: selectedPaymentMethods[0]?.installments || null,
+      fees: selectedPaymentMethods[0]?.fees || 0,
+      additionalNotes:
+        selectedPaymentMethods[0]?.observation || data.additionalNotes || '',
+      items: selectedItems.map((item) => ({
+        productId: item.id,
+        quantity: item.quantity,
+        unitPrice: item.price,
+        totalPrice: item.totalValue,
+      })),
+      bonusId: selectedBonuses[0]?.id || null,
+      paymentDetails: selectedPaymentMethods.map((method) => ({
+        paymentType: method.paymentMethod,
+        installments: method.installments || 0,
+        fees: method.fees || 0,
+        observation: method.observation || '',
+      })),
+      documents: documentsPayload,
+      validity: data.validity,
+      responsible: data.responsible,
+      email: data.email,
+      dueDate: data.dueDate,
+      notes: data.notes || '',
+    };
+
+    console.log('Payload para envio:', JSON.stringify(payload, null, 2));
+
+    try {
+      await api.post('/budget', payload);
+
+      toast.success('Orçamento salvo com sucesso!');
+      reset();
+    } catch (error: any) {
+      console.error('Erro ao salvar o orçamento:', error);
+
+      if (error.response) {
+        console.error('Detalhes do erro da API:', error.response.data);
+        toast.error(
+          `Erro: ${error.response.data.message || 'Algo deu errado.'}`
+        );
+      } else {
+        toast.error('Erro ao salvar o orçamento. Tente novamente.');
+      }
+    }
   };
 
   const handleCancel = () => {
@@ -401,7 +536,6 @@ export function Budget() {
                   render={({ field }) => (
                     <Select
                       {...field}
-                      required
                       onChange={(e) => {
                         field.onChange(e);
                         handleServiceChange(e.target.value);
@@ -650,7 +784,7 @@ export function Budget() {
                   name="paymentMethod"
                   control={control}
                   render={({ field }) => (
-                    <Select {...field} required>
+                    <Select {...field}>
                       <option value="">Selecione um Método de Pagamento</option>
                       <option value="PIX">PIX</option>
                       <option value="CASH">DINHEIRO</option>
@@ -688,7 +822,6 @@ export function Budget() {
                         {...field}
                         placeholder="Taxa do Parcelamento (%)"
                         type="number"
-                        step="0.01" // Permite casas decimais
                         min="0"
                       />
                     )}
@@ -959,6 +1092,50 @@ export function Budget() {
               )}
             />
           </FormRowCustom>
+
+          <SectionTitle>Anexos</SectionTitle>
+          <FormRowCustom>
+            <Button
+              type="button"
+              onClick={() => {
+                if (fileInputRef.current) {
+                  fileInputRef.current.click();
+                }
+              }}
+            >
+              Adicionar Anexo
+            </Button>
+            <input
+              type="file"
+              ref={fileInputRef}
+              style={{ display: 'none' }}
+              onChange={handleFileUpload}
+            />
+          </FormRowCustom>
+          <AttachmentTable>
+            <thead>
+              <tr>
+                <th>Arquivo</th>
+                <th>Ações</th>
+              </tr>
+            </thead>
+            <tbody>
+              {attachments.map((file, index) => (
+                <tr key={index}>
+                  <td>{file.name}</td>
+                  <td>
+                    <Button
+                      type="button"
+                      backgroundColor="#ff0000"
+                      onClick={() => removeAttachment(index)}
+                    >
+                      <Trash color="#fff" size={18} />
+                    </Button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </AttachmentTable>
 
           <FormRowBottom>
             <Button type="submit" backgroundColor={theme['cyen-700']}>

@@ -1,3 +1,23 @@
+interface PaymentMethod {
+  paymentMethod: string;
+  installments: number | null;
+  fees: number;
+  observation?: string;
+}
+
+interface Item {
+  id: string;
+  quantity: number;
+  price: number;
+  totalValue: number;
+}
+
+interface Document {
+  fileName: string;
+  fileType: string;
+  filePath: string;
+}
+
 export interface BudgetFormData {
   client: string;
   service: string;
@@ -31,4 +51,9 @@ export interface BudgetFormData {
   observation?: string;
   totalOriginal: number;
   totalWithBonuses: number;
+  finalValueWithInstallments: string | number;
+  selectedPaymentMethods: PaymentMethod[];
+  selectedItems: Item[];
+  documents: Document[];
+  additionalNotes: string;
 }
